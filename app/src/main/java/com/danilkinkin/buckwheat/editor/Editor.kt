@@ -22,6 +22,7 @@ import com.danilkinkin.buckwheat.data.SpendsViewModel
 import com.danilkinkin.buckwheat.editor.dateTimeEdit.DateTimeEditPill
 import com.danilkinkin.buckwheat.editor.tagging.TaggingToolbar
 import com.danilkinkin.buckwheat.editor.toolbar.EditorToolbar
+import com.danilkinkin.buckwheat.editor.transactionType.TransactionTypeToolbar
 import com.danilkinkin.buckwheat.ui.BuckwheatTheme
 
 enum class AnimState { EDITING, COMMIT, IDLE, RESET }
@@ -56,6 +57,8 @@ fun Editor(
                     .weight(1f),
                 focusController = focusController,
             )
+            TransactionTypeToolbar()
+            Spacer(Modifier.height(18.dp))
             TaggingToolbar(editorFocusController = focusController)
             Spacer(Modifier.height(24.dp))
         }

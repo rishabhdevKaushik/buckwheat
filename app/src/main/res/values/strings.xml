@@ -143,4 +143,8 @@
   <string name="confirm_finish_budget_title">Finish budget</string>
   <string name="confirm_finish_budget_description">Your current budget will be completed, and you will no longer be able to make any further expenses</string>
   <string name="confirm_finish_budget">Finish budget</string>
+
+
+  <string name="income">Income</string>
+  <string name="spend">Spend</string>
 </resources>
