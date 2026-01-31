@@ -35,7 +35,7 @@ fun CatchAndSendCrashReport(
             if (snackbarResult == SnackbarResult.ActionPerformed) {
                 sendEmail(
                     context,
-                    arrayOf("hello@danilkinkin.com"),
+                    arrayOf("rishabhdevkaushik87@gmail.com"),
                     "Buckwheat bug report",
                     """
     

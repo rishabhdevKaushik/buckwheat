@@ -26,24 +26,24 @@ fun BudgetSummary(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
-        ) {
-            WholeBudgetCard(
-                modifier = Modifier.weight(1f),
-                bigVariant = false,
-                budget = wholeBudget,
-                currency = currency,
-                startDate = spendsViewModel.startPeriodDate.value!!,
-                finishDate = spendsViewModel.finishPeriodDate.value!!,
-            )
-            DaysLeftCard(
-                startDate = spendsViewModel.startPeriodDate.value!!,
-                finishDate = spendsViewModel.finishPeriodDate.value!!,
-            )
-        }
+//        Row(
+//            Modifier
+//                .fillMaxWidth()
+//                .height(IntrinsicSize.Min)
+//        ) {
+//            WholeBudgetCard(
+//                modifier = Modifier.weight(1f),
+//                bigVariant = false,
+//                budget = wholeBudget,
+//                currency = currency,
+//                startDate = spendsViewModel.startPeriodDate.value!!,
+//                finishDate = spendsViewModel.finishPeriodDate.value!!,
+//            )
+//            DaysLeftCard(
+//                startDate = spendsViewModel.startPeriodDate.value!!,
+//                finishDate = spendsViewModel.finishPeriodDate.value!!,
+//            )
+//        }
         EditButton(onClick = { onEdit() })
     }
 }

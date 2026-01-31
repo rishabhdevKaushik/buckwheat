@@ -20,6 +20,7 @@ import java.math.RoundingMode
 @Composable
 fun Total(
     budget: BigDecimal,
+    balance: BigDecimal,
     restBudget: BigDecimal,
     days: Int,
     currency: ExtendCurrency,
@@ -28,7 +29,7 @@ fun Total(
     val textColor = LocalContentColor.current
 
     Column {
-        if (budget > BigDecimal.ZERO && days > 0) {
+        if (balance > BigDecimal.ZERO && days > 0) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = stringResource(R.string.total_title),
@@ -41,7 +42,7 @@ fun Total(
                     R.string.per_day,
                     numberFormat(
                         context,
-                        (budget / days.toBigDecimal()).setScale(0, RoundingMode.FLOOR),
+                        (balance).setScale(0, RoundingMode.FLOOR),
                         currency,
                     ),
                 ),
@@ -51,11 +52,8 @@ fun Total(
             Spacer(modifier = Modifier.height(16.dp))
         } else {
             var description = ""
-            if (budget <= BigDecimal.ZERO) {
+            if (balance <= BigDecimal.ZERO) {
                 description += "- " + stringResource(id = R.string.budget_must_greater_zero) + "\n"
-            }
-            if (days <= 0) {
-                description += "- " + stringResource(id = R.string.days_must_greater_zero) + "\n"
             }
 
             TextRow(

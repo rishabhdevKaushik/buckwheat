@@ -50,13 +50,14 @@ fun rememberExportCSV(
 
     val yearFormatter = DateTimeFormatter.ofPattern("yyyy")
 
-    val from = if (
-        yearFormatter.format(startPeriodDate) == yearFormatter.format(finishPeriodDate)
-    ) {
-        DateTimeFormatter.ofPattern("dd-MM").format(startPeriodDate)
-    } else {
+    val from =
+//        if (
+//        yearFormatter.format(startPeriodDate) == yearFormatter.format(finishPeriodDate)
+//    ) {
+//        DateTimeFormatter.ofPattern("dd-MM").format(startPeriodDate)
+//    } else {
         DateTimeFormatter.ofPattern("dd-MM-yyyy").format(startPeriodDate)
-    }
+//    }
     val to = DateTimeFormatter.ofPattern("dd-MM-yyyy").format(finishPeriodDate)
 
 

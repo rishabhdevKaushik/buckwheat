@@ -1,5 +1,6 @@
 package com.danilkinkin.buckwheat.data
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -12,6 +13,7 @@ import com.danilkinkin.buckwheat.util.countDaysToToday
 import com.danilkinkin.buckwheat.util.isToday
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -29,6 +31,7 @@ class SpendsViewModel @Inject constructor(
     var transactions = spendsRepository.getAllTransactions()
     var spends = spendsRepository.getAllSpends()
     var budget = spendsRepository.getBudget().asLiveData()
+    var balance = spendsRepository.getBalance().asLiveData()
     var spent = spendsRepository.getSpent().asLiveData()
     var dailyBudget = spendsRepository.getDailyBudget().asLiveData()
     var spentFromDailyBudget = spendsRepository.getSpentFromDailyBudget().asLiveData()
@@ -44,40 +47,38 @@ class SpendsViewModel @Inject constructor(
 
     var requireDistributionRestedBudget = MutableLiveData(false)
     var requireSetBudget = MutableLiveData(false)
+    var requireSetBalance = MutableLiveData(false)
     var periodFinished = MutableLiveData(false)
     var lastRemovedTransaction: MutableLiveData<Transaction> = MutableLiveData()
+
 
     init {
         runChangeDayAction()
         runScheduledDetectChangeDayTask()
+
+        balance.observeForever { balanceValue ->
+            if (balanceValue == null || balanceValue.compareTo(BigDecimal.ZERO) == 0) {
+                requireSetBalance.value = true
+            }
+        }
     }
 
     // Budget handling
 
-    fun setBudget(newBudget: BigDecimal, newFinishDate: Date) {
+//    fun setBudget(newBudget: BigDecimal, newFinishDate: Date) {
+//        viewModelScope.launch {
+//            spendsRepository.setBudget(newBudget, newFinishDate)
+//
+//            requireSetBudget.value = false
+//            periodFinished.value = false
+//        }
+//    }
+
+    fun setBalance(newBalance: BigDecimal) {
         viewModelScope.launch {
-            spendsRepository.setBudget(newBudget, newFinishDate)
+            spendsRepository.setBalance(newBalance)
 
-            requireSetBudget.value = false
-            periodFinished.value = false
-        }
-    }
-
-    fun changeBudget(newBudget: BigDecimal, newFinishDate: Date) {
-        viewModelScope.launch {
-            spendsRepository.changeBudget(newBudget, newFinishDate)
-
-            requireSetBudget.value = false
-            periodFinished.value = false
-        }
-    }
-
-    fun finishBudget() {
-        viewModelScope.launch {
-            spendsRepository.finishBudget(Date())
-
-            requireSetBudget.value = false
-            periodFinished.value = true
+            requireSetBalance.value = false
         }
     }
 
@@ -91,7 +92,8 @@ class SpendsViewModel @Inject constructor(
 
     fun addSpent(transactionForAdd: Transaction) {
         viewModelScope.launch {
-            spendsRepository.addSpent(transactionForAdd)
+//            spendsRepository.addSpent(transactionForAdd)
+            spendsRepository.addTransaction(transactionForAdd)
         }
     }
 
@@ -105,10 +107,17 @@ class SpendsViewModel @Inject constructor(
         }
     }
 
-    fun undoRemoveSpent() {
+    //    fun undoRemoveSpent() {
+//        viewModelScope.launch {
+//            lastRemovedTransaction.value?.let {
+//                spendsRepository.addSpent(it)
+//            }
+//        }
+//    }
+    fun undoRemoveTransaction() {
         viewModelScope.launch {
             lastRemovedTransaction.value?.let {
-                spendsRepository.addSpent(it)
+                spendsRepository.addTransaction(it)
             }
         }
     }
@@ -140,6 +149,16 @@ class SpendsViewModel @Inject constructor(
 
         viewModelScope.launch {
             data.value = spendsRepository.howMuchBudgetRest()
+        }
+
+        return data
+    }
+
+    fun howMuchBalanceRest(): LiveData<BigDecimal> {
+        val data = MutableLiveData<BigDecimal>()
+
+        viewModelScope.launch {
+            data.value = spendsRepository.howMuchBalanceRest()
         }
 
         return data
@@ -201,9 +220,10 @@ class SpendsViewModel @Inject constructor(
                     }
                 }
 
-                lastChangeDailyBudgetDate === null -> {
-                    requireSetBudget.value = true
-                }
+//                lastChangeDailyBudgetDate === null -> {
+//                    Log.d("Ye Chla", "Chl rha h")
+//                    requireSetBudget.value = true
+//                }
 
                 finishTimeReached -> {
                     periodFinished.value = true

@@ -19,8 +19,8 @@
   <string name="total_per_day">Day total:</string>
   <string name="change_date">Change date</string>
   <string name="change_time">Change time</string>
-  <string name="wallet_title">Budget</string>
-  <string name="wallet_edit_title">Setting up a budget</string>
+<!--  <string name="wallet_title">Budget</string>-->
+<!--  <string name="wallet_edit_title">Setting up a budget</string>-->
   <string name="select_finish_date_title">Choose a finish date</string>
   <plurals name="finish_date_label">
     <item quantity="one">To %1$s (%2$s day)</item>
@@ -147,4 +147,7 @@
 
   <string name="income">Income</string>
   <string name="spend">Spend</string>
+  <string name="wallet_title">Balance</string>
+  <string name="wallet_edit_title">Set balance</string>
+  <string name="change_balance">Change Balance</string>
 </resources>

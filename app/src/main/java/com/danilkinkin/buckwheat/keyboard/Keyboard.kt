@@ -23,6 +23,8 @@ import com.danilkinkin.buckwheat.di.TUTORS
 import com.danilkinkin.buckwheat.editor.EditMode
 import com.danilkinkin.buckwheat.editor.EditStage
 import com.danilkinkin.buckwheat.editor.EditorViewModel
+import com.danilkinkin.buckwheat.editor.transactionType.TransactionTypeHelper
+import com.danilkinkin.buckwheat.editor.transactionType.TransactionTypeToolbar
 import com.danilkinkin.buckwheat.ui.BuckwheatTheme
 import com.danilkinkin.buckwheat.util.getFloatDivider
 import com.danilkinkin.buckwheat.util.join
@@ -312,7 +314,8 @@ fun Keyboard(
                                         } else {
                                             spendsViewModel.addSpent(
                                                 Transaction(
-                                                    type = TransactionType.SPENT,
+//                                                    type = TransactionType.SPENT,
+                                                    type = TransactionTypeHelper.getTransactionType(),
                                                     value = editorViewModel.currentSpent,
                                                     date = Date(),
                                                     comment = (editorViewModel.currentComment.value

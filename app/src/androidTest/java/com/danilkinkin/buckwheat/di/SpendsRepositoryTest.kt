@@ -134,7 +134,7 @@ class SpendsRepositoryTest {
     fun reCalcBudgetAfterSkipFewDayWithSpentTest() = runTest {
         setBudget()
 
-        spendsRepository.addSpent(Transaction(TransactionType.SPENT, 10.toBigDecimal(), currentDateUseCase.value))
+        spendsRepository.addTransaction(Transaction(TransactionType.SPENT, 10.toBigDecimal(), currentDateUseCase.value))
 
         assert(spendsRepository.howMuchNotSpent() == 90.toBigDecimal().setScale(2))
         rewindTime(1)
@@ -164,11 +164,11 @@ class SpendsRepositoryTest {
 
     // Check spent in same day added correctly
     @Test
-    fun addSpentTest() = runTest {
+    fun addTransactionTest() = runTest {
         setBudget()
 
         val spend = Transaction(TransactionType.SPENT, 10.toBigDecimal(), currentDateUseCase.value)
-        spendsRepository.addSpent(spend)
+        spendsRepository.addTransaction(spend)
 
         assert(spendsRepository.getAllSpends().value!!.contains(spend))
         assert(spendsRepository.getSpentFromDailyBudget().first() == 10.toBigDecimal().setScale(2))
@@ -179,7 +179,7 @@ class SpendsRepositoryTest {
     // [Day 1] dailyBudget = 1000 / 10 = 100 > No spent > not spent = 100
     // [Day 2] dailyBudget = 1000 / 9 = 111.11 > Spend 10 (to yesterday) > 111.11 - (10 / 9) = 110
     @Test
-    fun addSpentInPreviousDayTest() = runTest {
+    fun addTransactionInPreviousDayTest() = runTest {
         setBudget()
 
         val spend = Transaction(TransactionType.SPENT, 10.toBigDecimal(), currentDateUseCase.value)
@@ -192,7 +192,7 @@ class SpendsRepositoryTest {
 
         distributeBudget()
 
-        spendsRepository.addSpent(spend)
+        spendsRepository.addTransaction(spend)
 
         Log.d("SpendsRepositoryTest", "whatBudgetForDay: ${spendsRepository.whatBudgetForDay()}")
         Log.d("SpendsRepositoryTest", "spentFromDailyBudget: ${spendsRepository.getSpentFromDailyBudget().first()}")
@@ -219,8 +219,8 @@ class SpendsRepositoryTest {
             value = 20.toBigDecimal(),
             date = currentDateUseCase.value,
         )
-        spendsRepository.addSpent(spend_1)
-        spendsRepository.addSpent(spend_2)
+        spendsRepository.addTransaction(spend_1)
+        spendsRepository.addTransaction(spend_2)
         spendsRepository.removeSpent(spend_1)
         val spends = spendsRepository.getAllSpends().value!!
 
@@ -238,7 +238,7 @@ class SpendsRepositoryTest {
             value = 10.toBigDecimal(),
             date = currentDateUseCase.value,
         )
-        spendsRepository.addSpent(spend)
+        spendsRepository.addTransaction(spend)
 
         rewindTime(1)
         distributeBudget()
@@ -266,9 +266,9 @@ class SpendsRepositoryTest {
             value = 10.toBigDecimal(),
             date = currentDateUseCase.value,
         )
-        spendsRepository.addSpent(spend)
+        spendsRepository.addTransaction(spend)
         spendsRepository.removeSpent(spend)
-        spendsRepository.addSpent(spend)
+        spendsRepository.addTransaction(spend)
         val spends = spendsRepository.getAllSpends().value!!
 
         assert(spends.contains(spend))
@@ -289,13 +289,13 @@ class SpendsRepositoryTest {
             value = 10.toBigDecimal(),
             date = currentDateUseCase.value,
         )
-        spendsRepository.addSpent(spend)
+        spendsRepository.addTransaction(spend)
 
         rewindTime(1)
         distributeBudget()
 
         spendsRepository.removeSpent(spend)
-        spendsRepository.addSpent(spend)
+        spendsRepository.addTransaction(spend)
         val spends = spendsRepository.getAllSpends().value!!
 
         assert(spends.contains(spend))
@@ -314,7 +314,7 @@ class SpendsRepositoryTest {
             value = 10.toBigDecimal(),
             date = currentDateUseCase.value,
         )
-        spendsRepository.addSpent(spend)
+        spendsRepository.addTransaction(spend)
 
         rewindTime(2)
 
@@ -324,7 +324,7 @@ class SpendsRepositoryTest {
 
         assert(spendsRepository.getSpentFromDailyBudget().first() == 0.toBigDecimal().setScale(2))
 
-        spendsRepository.addSpent(spend.copy(date = currentDateUseCase.value))
+        spendsRepository.addTransaction(spend.copy(date = currentDateUseCase.value))
 
         assert(spendsRepository.getSpentFromDailyBudget().first() == 10.toBigDecimal().setScale(2))
     }
@@ -343,7 +343,7 @@ class SpendsRepositoryTest {
             value = 120.toBigDecimal(),
             date = currentDateUseCase.value,
         )
-        spendsRepository.addSpent(spend)
+        spendsRepository.addTransaction(spend)
 
 
         assert(spendsRepository.getSpentFromDailyBudget().first() == 120.toBigDecimal().setScale(2))
@@ -370,7 +370,7 @@ class SpendsRepositoryTest {
             value = 10.toBigDecimal(),
             date = currentDateUseCase.value,
         )
-        spendsRepository.addSpent(spend)
+        spendsRepository.addTransaction(spend)
 
         rewindTime(1)
 
@@ -433,7 +433,7 @@ class SpendsRepositoryTest {
 
         assert(spendsRepository.whatBudgetForDay(applyTodaySpends = true) == 100.toBigDecimal().setScale(2))
 
-        spendsRepository.addSpent(Transaction(TransactionType.SPENT, 140.toBigDecimal(), currentDateUseCase.value))
+        spendsRepository.addTransaction(Transaction(TransactionType.SPENT, 140.toBigDecimal(), currentDateUseCase.value))
 
         assert(spendsRepository.nextDayBudget() == 100.toBigDecimal().setScale(2))
         assert(spendsRepository.getSpentFromDailyBudget().first() == 140.toBigDecimal().setScale(2))
@@ -447,7 +447,7 @@ class SpendsRepositoryTest {
 
         assert(spendsRepository.whatBudgetForDay(applyTodaySpends = true) == 95.56.toBigDecimal().setScale(2))
 
-        spendsRepository.addSpent(Transaction(TransactionType.SPENT, 10.toBigDecimal(), currentDateUseCase.value))
+        spendsRepository.addTransaction(Transaction(TransactionType.SPENT, 10.toBigDecimal(), currentDateUseCase.value))
 
         assert(spendsRepository.nextDayBudget() == 95.56.toBigDecimal().setScale(2))
         assert(spendsRepository.getSpentFromDailyBudget().first() == 10.toBigDecimal().setScale(2))
@@ -510,7 +510,7 @@ class SpendsRepositoryTest {
 
         assert(spendsRepository.whatBudgetForDay(applyTodaySpends = true) == 283.33.toBigDecimal().setScale(2))
 
-        spendsRepository.addSpent(Transaction(TransactionType.SPENT, 300.toBigDecimal(), currentDateUseCase.value))
+        spendsRepository.addTransaction(Transaction(TransactionType.SPENT, 300.toBigDecimal(), currentDateUseCase.value))
 
         assert(spendsRepository.nextDayBudget() == 283.34.toBigDecimal().setScale(2))
         assert(spendsRepository.getSpentFromDailyBudget().first() == 300.toBigDecimal().setScale(2))
@@ -524,7 +524,7 @@ class SpendsRepositoryTest {
 
         assert(spendsRepository.whatBudgetForDay(applyTodaySpends = true) == 275.toBigDecimal().setScale(2))
 
-        spendsRepository.addSpent(Transaction(TransactionType.SPENT, 100.toBigDecimal(), currentDateUseCase.value))
+        spendsRepository.addTransaction(Transaction(TransactionType.SPENT, 100.toBigDecimal(), currentDateUseCase.value))
 
         assert(spendsRepository.nextDayBudget() == 275.toBigDecimal().setScale(2))
         assert(spendsRepository.getSpentFromDailyBudget().first() == 100.toBigDecimal().setScale(2))

@@ -43,15 +43,14 @@ fun BottomSheets(
     val isDebug = appViewModel.isDebug.observeAsState(false)
     val coroutineScope = rememberCoroutineScope()
 
-    val requireSetBudget by spendsViewModel.requireSetBudget.observeAsState(false)
-    val periodFinished by spendsViewModel.periodFinished.observeAsState(false)
+    val requireSetBalance by spendsViewModel.requireSetBalance.observeAsState(false)
 
     BottomSheetWrapper(
         name = WALLET_SHEET,
-        cancelable = !requireSetBudget && !periodFinished,
+        cancelable = !requireSetBalance,
     ) { state ->
         Wallet(
-            forceChange = periodFinished || requireSetBudget,
+            forceChange = requireSetBalance,
             activityResultRegistryOwner = activityResultRegistryOwner,
             onClose = {
                 coroutineScope.launch {
@@ -126,7 +125,7 @@ fun BottomSheets(
 
     BottomSheetWrapper(
         name = ANALYTICS_SHEET,
-        cancelable = !periodFinished,
+        cancelable = true,
     ) { state ->
         Analytics(
             activityResultRegistryOwner = activityResultRegistryOwner,

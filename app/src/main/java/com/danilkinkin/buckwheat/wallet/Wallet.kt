@@ -27,7 +27,6 @@ import com.danilkinkin.buckwheat.base.LocalBottomSheetScrollState
 import com.danilkinkin.buckwheat.data.AppViewModel
 import com.danilkinkin.buckwheat.data.ExtendCurrency
 import com.danilkinkin.buckwheat.data.PathState
-import com.danilkinkin.buckwheat.data.RestedBudgetDistributionMethod
 import com.danilkinkin.buckwheat.data.SpendsViewModel
 import com.danilkinkin.buckwheat.di.TUTORS
 import com.danilkinkin.buckwheat.analytics.ANALYTICS_SHEET
@@ -50,31 +49,17 @@ fun Wallet(
     val haptic = LocalHapticFeedback.current
     val localBottomSheetScrollState = LocalBottomSheetScrollState.current
 
-    var budgetCache by remember { mutableStateOf(spendsViewModel.budget.value!!) }
-    val budget by spendsViewModel.budget.observeAsState(BigDecimal.ZERO)
-    val spent by spendsViewModel.spent.observeAsState(BigDecimal.ZERO)
-    val spentFromDailyBudget by spendsViewModel.spentFromDailyBudget.observeAsState(BigDecimal.ZERO)
+    var balanceCache by remember { mutableStateOf(spendsViewModel.balance.value ?: BigDecimal.ZERO) }
+    val balance by spendsViewModel.balance.observeAsState(BigDecimal.ZERO)
     val startPeriodDate by spendsViewModel.startPeriodDate.observeAsState(Date())
     val finishPeriodDate by spendsViewModel.finishPeriodDate.observeAsState(Date())
-    val dateToValue = remember { mutableStateOf(spendsViewModel.finishPeriodDate.value) }
     val currency by spendsViewModel.currency.observeAsState()
     val spends by spendsViewModel.spends.observeAsState()
-    val restedBudgetDistributionMethod by spendsViewModel.restedBudgetDistributionMethod.observeAsState()
-
-    val restBudget =
-        (budgetCache - spent - spentFromDailyBudget)
-
-    val openConfirmFinishBudgetDialog = remember { mutableStateOf(false) }
-
-    if (spends === null) return
 
     val navigationBarHeight = LocalWindowInsets.current.calculateBottomPadding()
         .coerceAtLeast(16.dp)
 
-    val isChange = (
-            budgetCache != budget
-                    || dateToValue.value != finishPeriodDate
-            )
+    val isChange = (balanceCache != balance)
 
     var isEdit by remember(startPeriodDate, finishPeriodDate, forceChange) {
         mutableStateOf(
@@ -90,11 +75,6 @@ fun Wallet(
 
     Surface(Modifier.padding(top = localBottomSheetScrollState.topPadding)) {
         Column {
-            val days = if (dateToValue.value !== null) {
-                countDaysToToday(dateToValue.value!!)
-            } else {
-                0
-            }
 
             Row(
                 modifier = Modifier
@@ -177,11 +157,17 @@ fun Wallet(
                     }
                 ) { targetIsEdit ->
                     if (targetIsEdit) {
-                        BudgetConstructor(
+//                        BudgetConstructor(
+//                            forceChange = forceChange,
+//                            onChange = { newBudget, finishDate ->
+//                                budgetCache = newBudget
+//                                dateToValue.value = finishDate
+//                            }
+//                        )
+                        BalanceConstructor(
                             forceChange = forceChange,
-                            onChange = { newBudget, finishDate ->
-                                budgetCache = newBudget
-                                dateToValue.value = finishDate
+                            onChange = { newBalance ->
+                                balanceCache = newBalance
                             }
                         )
                     } else {
@@ -193,24 +179,24 @@ fun Wallet(
                         )
                     }
                 }
-                ButtonRow(
-                    icon = painterResource(R.drawable.ic_directions),
-                    text = stringResource(R.string.rest_label),
-                    onClick = {
-                        appViewModel.openSheet(PathState(DEFAULT_RECALC_BUDGET_CHOOSER))
-                    },
-                    endCaption = when (restedBudgetDistributionMethod) {
-                        RestedBudgetDistributionMethod.ASK, null -> stringResource(
-                            R.string.always_ask
-                        )
-                        RestedBudgetDistributionMethod.REST -> stringResource(
-                            R.string.method_split_to_rest_days_title
-                        )
-                        RestedBudgetDistributionMethod.ADD_TODAY -> stringResource(
-                            R.string.method_add_to_current_day_title
-                        )
-                    },
-                )
+//                ButtonRow(
+//                    icon = painterResource(R.drawable.ic_directions),
+//                    text = stringResource(R.string.rest_label),
+//                    onClick = {
+//                        appViewModel.openSheet(PathState(DEFAULT_RECALC_BUDGET_CHOOSER))
+//                    },
+//                    endCaption = when (restedBudgetDistributionMethod) {
+//                        RestedBudgetDistributionMethod.ASK, null -> stringResource(
+//                            R.string.always_ask
+//                        )
+//                        RestedBudgetDistributionMethod.REST -> stringResource(
+//                            R.string.method_split_to_rest_days_title
+//                        )
+//                        RestedBudgetDistributionMethod.ADD_TODAY -> stringResource(
+//                            R.string.method_add_to_current_day_title
+//                        )
+//                    },
+//                )
                 ButtonRow(
                     icon = painterResource(R.drawable.ic_currency),
                     text = stringResource(R.string.in_currency_label),
@@ -257,27 +243,28 @@ fun Wallet(
                             )
                         }
 
-                        val exportCSVLaunch = rememberExportCSV(
-                            activityResultRegistryOwner = activityResultRegistryOwner
-                        )
+//                        val exportCSVLaunch = rememberExportCSV(
+//                            activityResultRegistryOwner = activityResultRegistryOwner
+//                        )
 
                         ButtonRow(
                             icon = painterResource(R.drawable.ic_file_download),
                             text = stringResource(R.string.export_to_csv),
-                            onClick = { exportCSVLaunch() }
+//                            onClick = { exportCSVLaunch() }
+                            onClick = {  }
                         )
 
-                        CompositionLocalProvider(
-                            LocalContentColor provides MaterialTheme.colorScheme.error
-                        ) {
-                            ButtonRow(
-                                icon = painterResource(R.drawable.ic_close),
-                                text = stringResource(R.string.finish_early),
-                                onClick = {
-                                    openConfirmFinishBudgetDialog.value = true
-                                }
-                            )
-                        }
+//                        CompositionLocalProvider(
+//                            LocalContentColor provides MaterialTheme.colorScheme.error
+//                        ) {
+//                            ButtonRow(
+//                                icon = painterResource(R.drawable.ic_close),
+//                                text = stringResource(R.string.finish_early),
+//                                onClick = {
+//                                    openConfirmFinishBudgetDialog.value = true
+//                                }
+//                            )
+//                        }
                     }
                 }
                 AnimatedVisibility(
@@ -297,20 +284,21 @@ fun Wallet(
                 ) {
                     Column {
                         Divider()
-                        Total(
-                            budget = budgetCache,
-                            restBudget = restBudget,
-                            days = days,
-                            currency = currency!!,
-                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+//                        Total(
+//                            budget = budgetCache,
+//                            restBudget = restBudget,
+//                            days = days,
+//                            currency = currency!!,
+//                        )
                         Button(
                             onClick = {
                                 spendsViewModel.changeDisplayCurrency(currency!!)
 
                                 if (spends!!.isNotEmpty() && !forceChange) {
-                                    spendsViewModel.changeBudget(budgetCache, dateToValue.value!!)
+                                    spendsViewModel.setBalance(balanceCache)
                                 } else {
-                                    spendsViewModel.setBudget(budgetCache, dateToValue.value!!)
+                                    spendsViewModel.setBalance(balanceCache)
                                     appViewModel.activateTutorial(TUTORS.OPEN_WALLET)
                                 }
 
@@ -321,13 +309,12 @@ fun Wallet(
                                 .fillMaxWidth()
                                 .heightIn(60.dp)
                                 .padding(horizontal = 16.dp),
-                            enabled = dateToValue.value !== null && countDaysToToday(dateToValue.value!!) > 0 && budgetCache > BigDecimal(
-                                0
-                            )
+                            enabled =  balanceCache > BigDecimal(0)
                         ) {
                             Text(
                                 text = if (spends!!.isNotEmpty() && !forceChange) {
-                                    stringResource(R.string.change_budget)
+//                                    stringResource(R.string.change_budget)
+                                    stringResource(R.string.change_balance)
                                 } else {
                                     stringResource(R.string.apply)
                                 },
@@ -345,17 +332,17 @@ fun Wallet(
         }
     }
 
-    if (openConfirmFinishBudgetDialog.value) {
-        ConfirmFinishEarlyDialog(
-            onConfirm = {
-                spendsViewModel.finishBudget()
-
-                onClose()
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-            },
-            onClose = { openConfirmFinishBudgetDialog.value = false },
-        )
-    }
+//    if (openConfirmFinishBudgetDialog.value) {
+//        ConfirmFinishEarlyDialog(
+//            onConfirm = {
+//                spendsViewModel.finishBudget()
+//
+//                onClose()
+//                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+//            },
+//            onClose = { openConfirmFinishBudgetDialog.value = false },
+//        )
+//    }
 }
 
 @Preview

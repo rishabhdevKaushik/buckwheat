@@ -111,7 +111,6 @@ fun RowScope.RestBudgetPill(
 
     if (
         (hideOverspendingWarn && budgetState == DaileBudgetState.BUDGET_END)
-        || budgetState == DaileBudgetState.NOT_SET
     ) {
         BigIconButton(
             icon = painterResource(R.drawable.ic_balance_wallet),

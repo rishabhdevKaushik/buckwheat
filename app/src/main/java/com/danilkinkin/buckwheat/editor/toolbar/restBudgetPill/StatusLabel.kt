@@ -60,11 +60,12 @@ fun StatusLabel(
 
             Spacer(modifier = Modifier.width(textStartOffset))
             Text(
-                text = when (budgetState) {
-                    DaileBudgetState.NORMAL, DaileBudgetState.NOT_SET, null -> stringResource(R.string.rest_budget_for_today)
-                    DaileBudgetState.OVERDRAFT -> stringResource(R.string.new_daily_budget_short)
-                    DaileBudgetState.BUDGET_END -> stringResource(R.string.budget_end)
-                },
+                text = stringResource(R.string.wallet_title),
+//                    when (budgetState) {
+//                    DaileBudgetState.NORMAL, DaileBudgetState.NOT_SET, null -> stringResource(R.string.rest_budget_for_today)
+//                    DaileBudgetState.OVERDRAFT -> stringResource(R.string.new_daily_budget_short)
+//                    DaileBudgetState.BUDGET_END -> stringResource(R.string.budget_end)
+//                },
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontSize = MaterialTheme.typography.titleMedium.fontSize
                 ),
@@ -74,47 +75,40 @@ fun StatusLabel(
             )
             Spacer(modifier = Modifier.width(14.dp))
         }
-        AnimatedVisibility(
-            visible = budgetState === DaileBudgetState.OVERDRAFT || budgetState === DaileBudgetState.BUDGET_END,
-            enter = fadeIn(tween(durationMillis = 250)),
-            exit = fadeOut(tween(durationMillis = 250)),
-        ) {
-            Card(
-                modifier = Modifier.size(50.dp),
-                shape = CircleShape,
-                colors = CardDefaults.cardColors(
-                    containerColor = harmonizedColor.container.copy(alpha = 0f),
-                    contentColor = harmonizedColor.onContainer,
-                ),
-                onClick = {
-                    if (budgetState === DaileBudgetState.BUDGET_END) {
-                        appViewModel.openSheet(
-                            PathState(
-                                BUDGET_IS_OVER_DESCRIPTION_SHEET
-                            )
-                        )
-                    } else {
-                        appViewModel.openSheet(
-                            PathState(
-                                NEW_DAY_BUDGET_DESCRIPTION_SHEET
-                            )
-                        )
-                    }
-                }
-            ) {
-                Row(
-                    Modifier.fillMaxHeight(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Spacer(modifier = Modifier.width(14.dp))
-                    Icon(
-                        painter = painterResource(R.drawable.ic_info),
-                        contentDescription = null,
-                        modifier = Modifier.size(22.dp)
-                    )
-                    Spacer(modifier = Modifier.width(14.dp))
-                }
-            }
-        }
+//        AnimatedVisibility(
+//            visible = budgetState === DaileBudgetState.OVERDRAFT || budgetState === DaileBudgetState.BUDGET_END,
+//            enter = fadeIn(tween(durationMillis = 250)),
+//            exit = fadeOut(tween(durationMillis = 250)),
+//        ) {
+//            Card(
+//                modifier = Modifier.size(50.dp),
+//                shape = CircleShape,
+//                colors = CardDefaults.cardColors(
+//                    containerColor = harmonizedColor.container.copy(alpha = 0f),
+//                    contentColor = harmonizedColor.onContainer,
+//                ),
+//                onClick = {
+//                    appViewModel.openSheet(
+//                        PathState(
+//                            NEW_DAY_BUDGET_DESCRIPTION_SHEET
+//                        )
+//                    )
+//
+//                }
+//            ) {
+//                Row(
+//                    Modifier.fillMaxHeight(),
+//                    verticalAlignment = Alignment.CenterVertically,
+//                ) {
+//                    Spacer(modifier = Modifier.width(14.dp))
+//                    Icon(
+//                        painter = painterResource(R.drawable.ic_info),
+//                        contentDescription = null,
+//                        modifier = Modifier.size(22.dp)
+//                    )
+//                    Spacer(modifier = Modifier.width(14.dp))
+//                }
+//            }
+//        }
     }
 }

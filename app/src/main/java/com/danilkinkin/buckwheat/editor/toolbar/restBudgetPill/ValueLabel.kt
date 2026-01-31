@@ -12,39 +12,25 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.danilkinkin.buckwheat.base.AnimatedNumber
 import com.danilkinkin.buckwheat.util.HarmonizedColorPalette
+import android.util.Log
 
 @Composable
 fun ValueLabel(
     harmonizedColor: HarmonizedColorPalette,
     restBudgetPillViewModel: RestBudgetPillViewModel = hiltViewModel(),
 ) {
-    val budgetState by restBudgetPillViewModel.state.observeAsState(DaileBudgetState.NORMAL)
-    val todayBudget by restBudgetPillViewModel.todayBudget.observeAsState("")
-    val newDailyBudget by restBudgetPillViewModel.newDailyBudget.observeAsState("")
+    val balance by restBudgetPillViewModel.balance.observeAsState("")
 
     AnimatedContent(
-        label = "Budget animated content",
-        targetState = budgetState
-    ) { targetState ->
-        when (targetState) {
-            DaileBudgetState.NORMAL, null -> {
-                AnimatedNumber(
-                    value = todayBudget,
-                    style = MaterialTheme.typography.headlineLarge.copy(
-                        fontSize = MaterialTheme.typography.headlineMedium.fontSize
-                    ),
-                )
-            }
-            DaileBudgetState.BUDGET_END, DaileBudgetState.NOT_SET -> {}
-            DaileBudgetState.OVERDRAFT -> {
-                AnimatedNumber(
-                    value = newDailyBudget,
-                    style = MaterialTheme.typography.headlineLarge.copy(
-                        fontSize = MaterialTheme.typography.headlineMedium.fontSize
-                    ),
-                )
-            }
-        }
+        label = "Balance animated content",
+        targetState = balance
+    ) { targetBalance ->
+        AnimatedNumber(
+            value = targetBalance,
+            style = MaterialTheme.typography.headlineLarge.copy(
+                fontSize = MaterialTheme.typography.headlineMedium.fontSize
+            ),
+        )
     }
     Spacer(modifier = Modifier.width(16.dp))
 }

@@ -112,7 +112,7 @@ fun MainScreen(
             duration = SnackbarDuration.Long,
         ) { snackbarResult ->
             if (snackbarResult == SnackbarResult.ActionPerformed) {
-                spendsViewModel.undoRemoveSpent()
+                spendsViewModel.undoRemoveTransaction()
             }
         }
     }
@@ -121,7 +121,7 @@ fun MainScreen(
         if (it) appViewModel.openSheet(PathState(RECALCULATE_DAILY_BUDGET_SHEET))
     }
 
-    observeLiveData(spendsViewModel.requireSetBudget) {
+    observeLiveData(spendsViewModel.requireSetBalance) {
         if (it) appViewModel.openSheet(PathState(ON_BOARDING_SHEET))
     }
 
