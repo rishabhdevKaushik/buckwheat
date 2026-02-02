@@ -54,7 +54,7 @@ fun Wallet(
     val startPeriodDate by spendsViewModel.startPeriodDate.observeAsState(Date())
     val finishPeriodDate by spendsViewModel.finishPeriodDate.observeAsState(Date())
     val currency by spendsViewModel.currency.observeAsState()
-    val spends by spendsViewModel.spends.observeAsState()
+    val spends by spendsViewModel.transactions.observeAsState()
 
     val navigationBarHeight = LocalWindowInsets.current.calculateBottomPadding()
         .coerceAtLeast(16.dp)

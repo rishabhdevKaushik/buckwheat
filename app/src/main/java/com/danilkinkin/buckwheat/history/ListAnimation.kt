@@ -14,7 +14,7 @@ import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.time.LocalDate
 
-enum class RowEntityType { DayDivider, Spent, DayTotal }
+enum class RowEntityType { DayDivider, Spent, DayTotal, Income }
 
 data class RowEntity(
     val type: RowEntityType,
@@ -22,7 +22,8 @@ data class RowEntity(
     var contentHash: String? = null,
     val day: LocalDate,
     val transaction: Transaction?,
-    var dayTotal: BigDecimal?,
+    var daySpendTotal: BigDecimal?,
+    var dayIncomeTotal: BigDecimal?,
 )
 
 @Suppress("UpdateTransitionLabel", "TransitionPropertiesLabel")
@@ -117,7 +118,7 @@ fun updateAnimatedItemsState(
 
             override fun onChanged(position: Int, count: Int, payload: Any?) {
                 for (i in 0 until count) {
-                    compositeList[position + i].item.dayTotal = (payload as RowEntity).dayTotal
+                    compositeList[position + i].item.daySpendTotal = (payload as RowEntity).daySpendTotal // FIXME: Change this according to spend / income
                     compositeList[position + i].item.contentHash = payload.contentHash
                 }
             }

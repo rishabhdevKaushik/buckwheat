@@ -1,5 +1,6 @@
 package com.danilkinkin.buckwheat.history
 
+import android.util.Log
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -33,6 +34,7 @@ import com.danilkinkin.buckwheat.analytics.WholeBudgetCard
 import com.danilkinkin.buckwheat.ui.BuckwheatTheme
 import com.danilkinkin.buckwheat.ui.colorEditor
 import com.danilkinkin.buckwheat.data.ExtendCurrency
+import com.danilkinkin.buckwheat.data.entities.TransactionType
 import com.danilkinkin.buckwheat.util.isSameDay
 import com.danilkinkin.buckwheat.util.observeLiveData
 import com.danilkinkin.buckwheat.util.toDate
@@ -66,15 +68,17 @@ fun History(
     val tutorial by appViewModel.getTutorialStage(TUTORS.SWIPE_EDIT_SPENT).observeAsState(TUTORIAL_STAGE.NONE)
     var isUserTrySwipe by remember { mutableStateOf(false) }
 
-    observeLiveData(spendsViewModel.spends) { transactions ->
+    observeLiveData(spendsViewModel.transactions) { transactions ->
         val composedList = emptyList<RowEntity>().toMutableList()
         var lastSpentDate: LocalDate? = null
-        var lastDayTotal: BigDecimal = BigDecimal.ZERO
+        var lastDaySpendTotal: BigDecimal = BigDecimal.ZERO
+        var lastDayIncomeTotal: BigDecimal = BigDecimal.ZERO
 
         transactions
-            .forEach { spent ->
+            .forEach { transaction ->
+                Log.d("Transaction" , "$transaction")
                 if (lastSpentDate === null || !isSameDay(
-                        spent.date.time,
+                        transaction.date.time,
                         lastSpentDate!!.toDate().time
                     )
                 ) {
@@ -86,13 +90,15 @@ fun History(
                                 contentHash = "total-${lastSpentDate}",
                                 transaction = null,
                                 day = lastSpentDate!!,
-                                dayTotal = lastDayTotal,
+                                daySpendTotal = lastDaySpendTotal,
+                                dayIncomeTotal = lastDayIncomeTotal,
                             )
                         )
                     }
 
-                    lastSpentDate = spent.date.toLocalDate()
-                    lastDayTotal = BigDecimal.ZERO
+                    lastSpentDate = transaction.date.toLocalDate()
+                    lastDaySpendTotal = BigDecimal.ZERO
+                    lastDayIncomeTotal = BigDecimal.ZERO
 
                     composedList.add(
                         RowEntity(
@@ -101,23 +107,41 @@ fun History(
                             contentHash = "header-${lastSpentDate}",
                             transaction = null,
                             day = lastSpentDate!!,
-                            dayTotal = null,
+                            daySpendTotal = null,
+                            dayIncomeTotal = null
                         )
                     )
                 }
 
-                lastDayTotal += spent.value
+                if (transaction.type === TransactionType.SPENT) {
+                    lastDaySpendTotal += transaction.value
 
-                composedList.add(
-                    RowEntity(
-                        type = RowEntityType.Spent,
-                        key = "spent-${spent.uid}",
-                        contentHash = "spent-${spent.uid}",
-                        transaction = spent,
-                        day = lastSpentDate!!,
-                        dayTotal = null,
+                    composedList.add(
+                        RowEntity(
+                            type = RowEntityType.Spent,
+                            key = "spent-${transaction.uid}",
+                            contentHash = "spent-${transaction.uid}",
+                            transaction = transaction,
+                            day = lastSpentDate!!,
+                            daySpendTotal = null,
+                            dayIncomeTotal = null
+                        )
                     )
-                )
+                } else {
+                    lastDayIncomeTotal += transaction.value
+
+                    composedList.add(
+                        RowEntity(
+                            type = RowEntityType.Income,
+                            key = "spent-${transaction.uid}",
+                            contentHash = "spent-${transaction.uid}",
+                            transaction = transaction,
+                            day = lastSpentDate!!,
+                            daySpendTotal = null,
+                            dayIncomeTotal = null
+                        )
+                    )
+                }
             }
 
         if (transactions.isNotEmpty() && lastSpentDate !== null) {
@@ -128,7 +152,8 @@ fun History(
                     contentHash = "total-${lastSpentDate}",
                     transaction = null,
                     day = lastSpentDate!!,
-                    dayTotal = lastDayTotal,
+                    daySpendTotal = lastDaySpendTotal,
+                    dayIncomeTotal = lastDayIncomeTotal,
                 )
             )
         }
@@ -190,10 +215,99 @@ fun History(
                     when (row.type) {
                         RowEntityType.DayDivider -> HistoryDateDivider(row.day)
                         RowEntityType.DayTotal -> TotalPerDay(
-                            spentPerDay = row.dayTotal!!,
+                            spentPerDay = row.daySpendTotal!!,
+                            incomePerDay = row.dayIncomeTotal!!,
                             currency = currency.value,
                         )
                         RowEntityType.Spent -> if (!readOnly) SwipeActions(
+                            startActionsConfig = SwipeActionsConfig(
+                                threshold = 0.4f,
+                                background = MaterialTheme.colorScheme.tertiaryContainer,
+                                backgroundActive = MaterialTheme.colorScheme.tertiary,
+                                iconTint = MaterialTheme.colorScheme.onTertiary,
+                                icon = painterResource(R.drawable.ic_edit),
+                                stayDismissed = false,
+                                onDismiss = {
+                                    editorViewModel.startEditingSpent(row.transaction!!)
+                                    onClose()
+                                }
+                            ),
+                            endActionsConfig = SwipeActionsConfig(
+                                threshold = 0.4f,
+                                background = MaterialTheme.colorScheme.errorContainer,
+                                backgroundActive = MaterialTheme.colorScheme.error,
+                                iconTint = MaterialTheme.colorScheme.onError,
+                                icon = painterResource(R.drawable.ic_delete_forever),
+                                stayDismissed = true,
+                                onDismiss = {
+                                    spendsViewModel.removeSpent(row.transaction!!)
+                                }
+                            ),
+                            onTried = { isUserTrySwipe = true },
+                            showTutorial = index == 2 && tutorial === TUTORIAL_STAGE.READY_TO_SHOW,
+                        ) { state ->
+                            val size = with(LocalDensity.current) {
+                                java.lang.Float.max(
+                                    java.lang.Float.min(
+                                        16.dp.toPx(),
+                                        abs(state.offset.value)
+                                    ), 0f
+                                ).toDp()
+                            }
+
+                            val animateCorners by remember {
+                                derivedStateOf {
+                                    state.offset.value.absoluteValue > 30
+                                }
+                            }
+                            val startCorners by animateDpAsState(
+                                targetValue = when {
+                                    state.dismissDirection == DismissDirection.StartToEnd &&
+                                            animateCorners -> 8.dp
+                                    else -> 0.dp
+                                }
+                            )
+                            val endCorners by animateDpAsState(
+                                targetValue = when {
+                                    state.dismissDirection == DismissDirection.EndToStart &&
+                                            animateCorners -> 8.dp
+                                    else -> 0.dp
+                                }
+                            )
+
+                            Box(
+                                modifier = Modifier.height(IntrinsicSize.Min)
+                            ) {
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(
+                                            vertical = min(
+                                                size / 4f,
+                                                4.dp
+                                            )
+                                        )
+                                        .clip(RoundedCornerShape(size)),
+                                    color = colorEditor,
+                                    shape = RoundedCornerShape(
+                                        topStart = startCorners,
+                                        bottomStart = startCorners,
+                                        topEnd = endCorners,
+                                        bottomEnd = endCorners,
+                                    ),
+                                ) {
+                                }
+                                Box(
+                                    modifier = Modifier.padding(vertical = 4.dp)
+                                ) {
+                                    SpentItem(
+                                        transaction = row.transaction!!,
+                                        currency = currency.value
+                                    )
+                                }
+                            }
+                        }
+                        RowEntityType.Income -> if (!readOnly) SwipeActions(
                             startActionsConfig = SwipeActionsConfig(
                                 threshold = 0.4f,
                                 background = MaterialTheme.colorScheme.tertiaryContainer,

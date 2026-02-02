@@ -15,10 +15,13 @@ import com.danilkinkin.buckwheat.data.ExtendCurrency
 import com.danilkinkin.buckwheat.util.numberFormat
 import java.math.BigDecimal
 import com.danilkinkin.buckwheat.R
+import com.danilkinkin.buckwheat.ui.colorGood
+import com.danilkinkin.buckwheat.ui.colorSeed
 
 @Composable
 fun TotalPerDay(
     spentPerDay: BigDecimal,
+    incomePerDay: BigDecimal,
     currency: ExtendCurrency,
 ) {
     val context = LocalContext.current
@@ -41,9 +44,15 @@ fun TotalPerDay(
         )
         Spacer(Modifier.width(4.dp))
         Text(
-            text = numberFormat(context, spentPerDay, currency = currency),
+            text = "- " + numberFormat(context, spentPerDay, currency = currency),
             style = MaterialTheme.typography.titleMedium,
-            color = colorOnEditor,
+            color = colorSeed,
+        )
+        Spacer(Modifier.width(4.dp))
+        Text(
+            text = "+ " + numberFormat(context, incomePerDay, currency = currency),
+            style = MaterialTheme.typography.titleMedium,
+            color = colorGood,
         )
     }
 }
@@ -53,6 +62,7 @@ fun TotalPerDay(
 private fun PreviewDefault() {
     BuckwheatTheme {
         TotalPerDay(
+            BigDecimal(12340),
             BigDecimal(12340),
             ExtendCurrency.none()
         )

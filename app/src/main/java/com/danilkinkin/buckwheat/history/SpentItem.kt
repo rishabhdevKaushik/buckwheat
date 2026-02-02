@@ -15,6 +15,7 @@ import com.danilkinkin.buckwheat.data.ExtendCurrency
 import com.danilkinkin.buckwheat.data.entities.Transaction
 import com.danilkinkin.buckwheat.data.entities.TransactionType
 import com.danilkinkin.buckwheat.ui.BuckwheatTheme
+import com.danilkinkin.buckwheat.ui.colorGood
 import com.danilkinkin.buckwheat.ui.colorOnEditor
 import com.danilkinkin.buckwheat.util.*
 import java.math.BigDecimal
@@ -32,14 +33,26 @@ fun SpentItem(
         Row(modifier.fillMaxWidth()) {
             Column(
                 Modifier
-                    .padding( start = 32.dp, top = 14.dp)
+                    .padding(start = 32.dp, top = 14.dp)
                     .weight(1f)
             ) {
                 Text(
-                    text = numberFormat(context = context, transaction.value, currency = currency),
+                    text = if (transaction.type == TransactionType.INCOME) {
+                        "+ " + numberFormat(
+                            context = context,
+                            transaction.value,
+                            currency = currency
+                        )
+                    } else {
+                        numberFormat(context = context, transaction.value, currency = currency)
+                    },
                     style = MaterialTheme.typography.headlineMedium,
                     fontSize = MaterialTheme.typography.headlineMedium.fontSize,
-                    color = colorOnEditor,
+                    color = if (transaction.type == TransactionType.INCOME) {
+                        colorGood
+                    } else {
+                        colorOnEditor
+                    },
                     softWrap = false,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier,
@@ -63,7 +76,7 @@ fun SpentItem(
         }
         if (transaction.comment.isNotEmpty()) {
             Text(
-                modifier = Modifier.padding( horizontal = 32.dp),
+                modifier = Modifier.padding(horizontal = 32.dp),
                 text = transaction.comment,
                 style = MaterialTheme.typography.bodyMedium,
                 color = colorOnEditor.copy(alpha = 0.7f),
