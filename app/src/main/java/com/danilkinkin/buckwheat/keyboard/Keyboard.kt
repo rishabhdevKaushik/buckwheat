@@ -18,13 +18,11 @@ import com.danilkinkin.buckwheat.R
 import com.danilkinkin.buckwheat.data.AppViewModel
 import com.danilkinkin.buckwheat.data.SpendsViewModel
 import com.danilkinkin.buckwheat.data.entities.Transaction
-import com.danilkinkin.buckwheat.data.entities.TransactionType
 import com.danilkinkin.buckwheat.di.TUTORS
 import com.danilkinkin.buckwheat.editor.EditMode
 import com.danilkinkin.buckwheat.editor.EditStage
 import com.danilkinkin.buckwheat.editor.EditorViewModel
 import com.danilkinkin.buckwheat.editor.transactionType.TransactionTypeHelper
-import com.danilkinkin.buckwheat.editor.transactionType.TransactionTypeToolbar
 import com.danilkinkin.buckwheat.ui.BuckwheatTheme
 import com.danilkinkin.buckwheat.util.getFloatDivider
 import com.danilkinkin.buckwheat.util.join
@@ -257,7 +255,7 @@ fun Keyboard(
                             icon = painterResource(R.drawable.ic_delete_forever),
                             onClick = {
                                 editorViewModel.editedTransaction?.let {
-                                    spendsViewModel.removeSpent(
+                                    spendsViewModel.removeTransaction(
                                         it
                                     )
                                 }
@@ -306,13 +304,13 @@ fun Keyboard(
                                                         ?: "").trim()
                                                 )
 
-                                            spendsViewModel.removeSpent(
+                                            spendsViewModel.removeTransaction(
                                                 editorViewModel.editedTransaction!!,
                                                 silent = true
                                             )
-                                            spendsViewModel.addSpent(newVersionOfSpent)
+                                            spendsViewModel.addTransaction(newVersionOfSpent)
                                         } else {
-                                            spendsViewModel.addSpent(
+                                            spendsViewModel.addTransaction(
                                                 Transaction(
 //                                                    type = TransactionType.SPENT,
                                                     type = TransactionTypeHelper.getTransactionType(),

@@ -1,6 +1,5 @@
 package com.danilkinkin.buckwheat.data
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -13,7 +12,6 @@ import com.danilkinkin.buckwheat.util.countDaysToToday
 import com.danilkinkin.buckwheat.util.isToday
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -90,16 +88,17 @@ class SpendsViewModel @Inject constructor(
 
     // Spend handling
 
-    fun addSpent(transactionForAdd: Transaction) {
+    fun addTransaction(transactionForAdd: Transaction) {
         viewModelScope.launch {
 //            spendsRepository.addSpent(transactionForAdd)
             spendsRepository.addTransaction(transactionForAdd)
         }
     }
 
-    fun removeSpent(transactionForRemove: Transaction, silent: Boolean = false) {
+    fun removeTransaction(transactionForRemove: Transaction, silent: Boolean = false) {
         viewModelScope.launch {
-            spendsRepository.removeSpent(transactionForRemove)
+//            spendsRepository.removeSpent(transactionForRemove)
+            spendsRepository.removeTransaction(transactionForRemove)
 
             if (!silent) {
                 lastRemovedTransaction.value = transactionForRemove
@@ -107,7 +106,7 @@ class SpendsViewModel @Inject constructor(
         }
     }
 
-    //    fun undoRemoveSpent() {
+//    fun undoRemoveSpent() {
 //        viewModelScope.launch {
 //            lastRemovedTransaction.value?.let {
 //                spendsRepository.addSpent(it)
@@ -221,7 +220,6 @@ class SpendsViewModel @Inject constructor(
                 }
 
 //                lastChangeDailyBudgetDate === null -> {
-//                    Log.d("Ye Chla", "Chl rha h")
 //                    requireSetBudget.value = true
 //                }
 

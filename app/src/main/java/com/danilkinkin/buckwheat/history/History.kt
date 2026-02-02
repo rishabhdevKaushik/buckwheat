@@ -1,6 +1,5 @@
 package com.danilkinkin.buckwheat.history
 
-import android.util.Log
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -76,7 +75,6 @@ fun History(
 
         transactions
             .forEach { transaction ->
-                Log.d("Transaction" , "$transaction")
                 if (lastSpentDate === null || !isSameDay(
                         transaction.date.time,
                         lastSpentDate!!.toDate().time
@@ -240,7 +238,7 @@ fun History(
                                 icon = painterResource(R.drawable.ic_delete_forever),
                                 stayDismissed = true,
                                 onDismiss = {
-                                    spendsViewModel.removeSpent(row.transaction!!)
+                                    spendsViewModel.removeTransaction(row.transaction!!)
                                 }
                             ),
                             onTried = { isUserTrySwipe = true },
@@ -328,7 +326,7 @@ fun History(
                                 icon = painterResource(R.drawable.ic_delete_forever),
                                 stayDismissed = true,
                                 onDismiss = {
-                                    spendsViewModel.removeSpent(row.transaction!!)
+                                    spendsViewModel.removeTransaction(row.transaction!!)
                                 }
                             ),
                             onTried = { isUserTrySwipe = true },

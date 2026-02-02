@@ -221,7 +221,7 @@ class SpendsRepositoryTest {
         )
         spendsRepository.addTransaction(spend_1)
         spendsRepository.addTransaction(spend_2)
-        spendsRepository.removeSpent(spend_1)
+        spendsRepository.removeTransaction(spend_1)
         val spends = spendsRepository.getAllSpends().value!!
 
         assert(spends.isEmpty())
@@ -243,7 +243,7 @@ class SpendsRepositoryTest {
         rewindTime(1)
         distributeBudget()
 
-        spendsRepository.removeSpent(spend)
+        spendsRepository.removeTransaction(spend)
         val spends = spendsRepository.getAllSpends().value!!
 
         Log.d("SpendsRepositoryTest", "spentFromDailyBudget: ${spendsRepository.getSpentFromDailyBudget().first()}")
@@ -267,7 +267,7 @@ class SpendsRepositoryTest {
             date = currentDateUseCase.value,
         )
         spendsRepository.addTransaction(spend)
-        spendsRepository.removeSpent(spend)
+        spendsRepository.removeTransaction(spend)
         spendsRepository.addTransaction(spend)
         val spends = spendsRepository.getAllSpends().value!!
 
@@ -294,7 +294,7 @@ class SpendsRepositoryTest {
         rewindTime(1)
         distributeBudget()
 
-        spendsRepository.removeSpent(spend)
+        spendsRepository.removeTransaction(spend)
         spendsRepository.addTransaction(spend)
         val spends = spendsRepository.getAllSpends().value!!
 
@@ -320,7 +320,7 @@ class SpendsRepositoryTest {
 
         distributeBudget()
 
-        spendsRepository.removeSpent(spend)
+        spendsRepository.removeTransaction(spend)
 
         assert(spendsRepository.getSpentFromDailyBudget().first() == 0.toBigDecimal().setScale(2))
 

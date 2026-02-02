@@ -29,6 +29,7 @@ import java.math.RoundingMode
 import java.util.Date
 import javax.inject.Inject
 import com.danilkinkin.buckwheat.editor.transactionType.TransactionTypeHelper.setDefaultTransactionType
+import kotlin.plus
 
 val currencyStoreKey = stringPreferencesKey("currency")
 val restedBudgetDistributionMethodStoreKey = stringPreferencesKey("restedBudgetDistributionMethod")
@@ -173,13 +174,6 @@ class SpendsRepository @Inject constructor(
     suspend fun setBalance(newBalance: BigDecimal) {
         context.budgetDataStore.edit {
             it[balanceStoreKey] = newBalance.toString()
-//            it[spentStoreKey] = BigDecimal.ZERO.toString()
-//            it[dailyBudgetStoreKey] = BigDecimal.ZERO.toString()
-//            it[spentFromDailyBudgetStoreKey] = BigDecimal.ZERO.toString()
-//            it[lastChangeDailyBudgetDateStoreKey] = roundToDay(getCurrentDateUseCase()).time
-//            it[startPeriodDateStoreKey] = roundToDay(getCurrentDateUseCase()).time
-//            it[finishPeriodDateStoreKey] = Date(roundToDay(newFinishDate).time + DAY - 1000).time
-//            it.remove(finishPeriodActualDateStoreKey)
 
             Log.d(
                 "SpendsRepository",
@@ -189,59 +183,48 @@ class SpendsRepository @Inject constructor(
             )
         }
 
-//        transactionDao.deleteAll()
-//        transactionDao.insert(
-//            Transaction(
-//                TransactionType.INCOME,
-//                newBalance,
-//                getCurrentDateUseCase(),
-//            )
-//        )
-
-//        setDailyBudget(whatBudgetForDay())
-
         hideOverspendingWarn(false)
     }
 
-    suspend fun changeBudget(newBudget: BigDecimal, newFinishDate: Date) {
-        context.budgetDataStore.edit {
-            it[budgetStoreKey] = newBudget.toString()
-            it[lastChangeDailyBudgetDateStoreKey] = roundToDay(getCurrentDateUseCase()).time
-            it[finishPeriodDateStoreKey] = Date(roundToDay(newFinishDate).time + DAY - 1000).time
-            it.remove(finishPeriodActualDateStoreKey)
+//    suspend fun changeBudget(newBudget: BigDecimal, newFinishDate: Date) {
+//        context.budgetDataStore.edit {
+//            it[budgetStoreKey] = newBudget.toString()
+//            it[lastChangeDailyBudgetDateStoreKey] = roundToDay(getCurrentDateUseCase()).time
+//            it[finishPeriodDateStoreKey] = Date(roundToDay(newFinishDate).time + DAY - 1000).time
+//            it.remove(finishPeriodActualDateStoreKey)
+//
+//            Log.d(
+//                "SpendsRepository",
+//                "Change budget ["
+//                        + "budget: ${it[budgetStoreKey]} "
+//                        + "start date: ${Date(it[startPeriodDateStoreKey]!!)} "
+//                        + "finish date: ${Date(it[finishPeriodDateStoreKey]!!)}"
+//                        + "]"
+//            )
+//        }
+//
+//        val incomeTransaction = transactionDao.getAll(TransactionType.INCOME).asFlow().first().first()
+//
+//        transactionDao.update(incomeTransaction.copy(value = newBudget))
+//
+//        updateDailyBudget(whatBudgetForDay())
+//    }
 
-            Log.d(
-                "SpendsRepository",
-                "Change budget ["
-                        + "budget: ${it[budgetStoreKey]} "
-                        + "start date: ${Date(it[startPeriodDateStoreKey]!!)} "
-                        + "finish date: ${Date(it[finishPeriodDateStoreKey]!!)}"
-                        + "]"
-            )
-        }
-
-        val incomeTransaction = transactionDao.getAll(TransactionType.INCOME).asFlow().first().first()
-
-        transactionDao.update(incomeTransaction.copy(value = newBudget))
-
-        updateDailyBudget(whatBudgetForDay())
-    }
-
-    suspend fun finishBudget(finishDate: Date) {
-        context.budgetDataStore.edit {
-            it[finishPeriodActualDateStoreKey] = finishDate.time
-
-            Log.d(
-                "SpendsRepository",
-                "Finish budget ["
-                        + "budget: ${it[budgetStoreKey]} "
-                        + "start date: ${Date(it[startPeriodDateStoreKey]!!)} "
-                        + "actual finish date: ${Date(it[finishPeriodActualDateStoreKey]!!)}"
-                        + "finish date: ${Date(it[finishPeriodDateStoreKey]!!)}"
-                        + "]"
-            )
-        }
-    }
+//    suspend fun finishBudget(finishDate: Date) {
+//        context.budgetDataStore.edit {
+//            it[finishPeriodActualDateStoreKey] = finishDate.time
+//
+//            Log.d(
+//                "SpendsRepository",
+//                "Finish budget ["
+//                        + "budget: ${it[budgetStoreKey]} "
+//                        + "start date: ${Date(it[startPeriodDateStoreKey]!!)} "
+//                        + "actual finish date: ${Date(it[finishPeriodActualDateStoreKey]!!)}"
+//                        + "finish date: ${Date(it[finishPeriodDateStoreKey]!!)}"
+//                        + "]"
+//            )
+//        }
+//    }
 
     suspend fun updateDailyBudget(newDailyBudget: BigDecimal) {
         context.budgetDataStore.edit {
@@ -525,50 +508,50 @@ class SpendsRepository @Inject constructor(
 //        }
 //    }
 
-    suspend fun removeSpent(transactionForRemove: Transaction) {
-        this.transactionDao.deleteById(transactionForRemove.uid)
-
-        context.budgetDataStore.edit {
-            if (isSameDay(transactionForRemove.date, getCurrentDateUseCase())) {
-                val spentFromDailyBudget = it[spentFromDailyBudgetStoreKey]?.toBigDecimal()!!
-
-                it[spentFromDailyBudgetStoreKey] =
-                    (spentFromDailyBudget - transactionForRemove.value).toString()
-            } else {
-                val finishPeriodDate = it[finishPeriodDateStoreKey]?.let { value -> Date(value) }!!
-                val dailyBudget = it[dailyBudgetStoreKey]?.toBigDecimal()!!
-                val spent = it[spentStoreKey]?.toBigDecimal()!!
-
-                val restDays = countDays(finishPeriodDate, getCurrentDateUseCase())
-                val spreadDeltaSpentPerRestDays = transactionForRemove.value
-                    .divide(
-                        restDays.toBigDecimal(),
-                        2,
-                        RoundingMode.HALF_EVEN,
-                    )
-
-                Log.d(
-                    "SpendsRepository",
-                    "Remove spent from previous day { "
-                            + transactionForRemove
-                            + " } ["
-                            + "spent: $spent "
-                            + "dailyBudget: $dailyBudget "
-                            + "spreadDeltaSpentPerRestDays: $spreadDeltaSpentPerRestDays "
-                            + "spentDate: ${transactionForRemove.date} "
-                            + "getCurrentDateUseCase: ${getCurrentDateUseCase()} "
-                            + "countDays: $restDays "
-                            + "]"
-                )
-
-                it[dailyBudgetStoreKey] = (dailyBudget + spreadDeltaSpentPerRestDays).toString()
-                it[spentStoreKey] = (spent - transactionForRemove.value).toString()
-            }
-        }
-    }
+//    suspend fun removeSpent(transactionForRemove: Transaction) {
+//        this.transactionDao.deleteById(transactionForRemove.uid)
+//
+//        context.budgetDataStore.edit {
+//            if (isSameDay(transactionForRemove.date, getCurrentDateUseCase())) {
+//                val spentFromDailyBudget = it[spentFromDailyBudgetStoreKey]?.toBigDecimal()!!
+//
+//                it[spentFromDailyBudgetStoreKey] =
+//                    (spentFromDailyBudget - transactionForRemove.value).toString()
+//            } else {
+//                val finishPeriodDate = it[finishPeriodDateStoreKey]?.let { value -> Date(value) }!!
+//                val dailyBudget = it[dailyBudgetStoreKey]?.toBigDecimal()!!
+//                val spent = it[spentStoreKey]?.toBigDecimal()!!
+//
+//                val restDays = countDays(finishPeriodDate, getCurrentDateUseCase())
+//                val spreadDeltaSpentPerRestDays = transactionForRemove.value
+//                    .divide(
+//                        restDays.toBigDecimal(),
+//                        2,
+//                        RoundingMode.HALF_EVEN,
+//                    )
+//
+//                Log.d(
+//                    "SpendsRepository",
+//                    "Remove spent from previous day { "
+//                            + transactionForRemove
+//                            + " } ["
+//                            + "spent: $spent "
+//                            + "dailyBudget: $dailyBudget "
+//                            + "spreadDeltaSpentPerRestDays: $spreadDeltaSpentPerRestDays "
+//                            + "spentDate: ${transactionForRemove.date} "
+//                            + "getCurrentDateUseCase: ${getCurrentDateUseCase()} "
+//                            + "countDays: $restDays "
+//                            + "]"
+//                )
+//
+//                it[dailyBudgetStoreKey] = (dailyBudget + spreadDeltaSpentPerRestDays).toString()
+//                it[spentStoreKey] = (spent - transactionForRemove.value).toString()
+//            }
+//        }
+//    }
 
     suspend fun addTransaction(newTransaction: Transaction) {
-        Log.d("Add Transaction", "$newTransaction")
+        Log.d("SpendsRepository", "Add Transaction : $newTransaction")
         this.transactionDao.insert(newTransaction)
 
         context.budgetDataStore.edit {
@@ -587,43 +570,15 @@ class SpendsRepository @Inject constructor(
     }
 
     suspend fun removeTransaction(transactionForRemove: Transaction) {
+        Log.d("SpendsRepository", "Remove Transaction : $transactionForRemove")
         this.transactionDao.deleteById(transactionForRemove.uid)
 
         context.budgetDataStore.edit {
-            if (isSameDay(transactionForRemove.date, getCurrentDateUseCase())) {
-                val spentFromDailyBudget = it[spentFromDailyBudgetStoreKey]?.toBigDecimal()!!
-
-                it[spentFromDailyBudgetStoreKey] =
-                    (spentFromDailyBudget - transactionForRemove.value).toString()
+            val balance = it[balanceStoreKey]?.toBigDecimal()!!
+            if (transactionForRemove.type == TransactionType.INCOME) {
+                it[balanceStoreKey] = (balance - transactionForRemove.value).toString()
             } else {
-                val finishPeriodDate = it[finishPeriodDateStoreKey]?.let { value -> Date(value) }!!
-                val dailyBudget = it[dailyBudgetStoreKey]?.toBigDecimal()!!
-                val spent = it[spentStoreKey]?.toBigDecimal()!!
-
-                val restDays = countDays(finishPeriodDate, getCurrentDateUseCase())
-                val spreadDeltaSpentPerRestDays = transactionForRemove.value
-                    .divide(
-                        restDays.toBigDecimal(),
-                        2,
-                        RoundingMode.HALF_EVEN,
-                    )
-
-                Log.d(
-                    "SpendsRepository",
-                    "Remove spent from previous day { "
-                            + transactionForRemove
-                            + " } ["
-                            + "spent: $spent "
-                            + "dailyBudget: $dailyBudget "
-                            + "spreadDeltaSpentPerRestDays: $spreadDeltaSpentPerRestDays "
-                            + "spentDate: ${transactionForRemove.date} "
-                            + "getCurrentDateUseCase: ${getCurrentDateUseCase()} "
-                            + "countDays: $restDays "
-                            + "]"
-                )
-
-                it[dailyBudgetStoreKey] = (dailyBudget + spreadDeltaSpentPerRestDays).toString()
-                it[spentStoreKey] = (spent - transactionForRemove.value).toString()
+                it[balanceStoreKey] = (balance + transactionForRemove.value).toString()
             }
         }
     }

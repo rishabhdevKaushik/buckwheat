@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import com.danilkinkin.buckwheat.data.entities.Transaction
+import com.danilkinkin.buckwheat.data.entities.TransactionType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
@@ -118,7 +119,12 @@ fun updateAnimatedItemsState(
 
             override fun onChanged(position: Int, count: Int, payload: Any?) {
                 for (i in 0 until count) {
-                    compositeList[position + i].item.daySpendTotal = (payload as RowEntity).daySpendTotal // FIXME: Change this according to spend / income
+                    if (compositeList[position + i].item.type === RowEntityType.Spent){
+                        compositeList[position + i].item.daySpendTotal = (payload as RowEntity).daySpendTotal
+                    } else {
+                        compositeList[position + i].item.dayIncomeTotal = (payload as RowEntity).dayIncomeTotal
+
+                    }
                     compositeList[position + i].item.contentHash = payload.contentHash
                 }
             }
