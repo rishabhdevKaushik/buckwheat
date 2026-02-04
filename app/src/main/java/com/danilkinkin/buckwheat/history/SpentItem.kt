@@ -49,9 +49,17 @@ fun SpentItem(
                     style = MaterialTheme.typography.headlineMedium,
                     fontSize = MaterialTheme.typography.headlineMedium.fontSize,
                     color = if (transaction.type == TransactionType.INCOME) {
-                        colorGood
+                        colorOnEditor.copy(
+                            red = (colorOnEditor.red * 0.9f + 0.1f * 0.1f),
+                            green = (colorOnEditor.green * 0.9f + 0.1f * 3f),  // boost green
+                            blue = (colorOnEditor.blue * 0.9f + 0.1f * 0.1f),
+                        )
                     } else {
-                        colorOnEditor
+                        colorOnEditor.copy(
+                            red = (colorOnEditor.red * 0.9f + 0.1f * 2f),   // boost red
+                            green = (colorOnEditor.green * 0.9f + 0.1f * 0.1f),
+                            blue = (colorOnEditor.blue * 0.9f + 0.1f * 0.1f),
+                        )
                     },
                     softWrap = false,
                     overflow = TextOverflow.Ellipsis,

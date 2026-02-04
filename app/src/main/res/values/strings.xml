@@ -150,4 +150,5 @@
   <string name="wallet_title">Balance</string>
   <string name="wallet_edit_title">Set balance</string>
   <string name="change_balance">Change Balance</string>
+  <string name="spent">Spent</string>
 </resources>

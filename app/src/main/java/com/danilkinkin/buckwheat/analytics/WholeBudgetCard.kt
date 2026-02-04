@@ -61,15 +61,15 @@ fun WholeBudgetCard(
         colors = colors,
         content = {
             Spacer(modifier = Modifier.height(16.dp))
-            Layout(
-                modifier = Modifier.height(IntrinsicSize.Min),
-                measurePolicy = growByMiddleChildRowMeasurePolicy(LocalDensity.current),
-                content = {
+//            Layout(
+//                modifier = Modifier.height(IntrinsicSize.Min),
+//                measurePolicy = growByMiddleChildRowMeasurePolicy(LocalDensity.current),
+//                content = {
                     Column {
                         Text(
                             text = prettyDate(
                                 startDate,
-                                pattern = "dd MMM",
+                                pattern = "MMM, yy",
                                 simplifyIfToday = false,
                             ),
                             softWrap = false,
@@ -79,133 +79,133 @@ fun WholeBudgetCard(
                         )
                     }
 
-                    Box(
-                        modifier = Modifier
-                    ) {
-                        Arrow(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = if (bigVariant) 16.dp else 8.dp)
-                                .fillMaxHeight()
-                        )
-                        if (actualFinishDate !== null && bigVariant) {
-                            CountDaysChip(
-                                Modifier
-                                    .align(Alignment.Center)
-                                    .offset(6.dp, (-12).dp)
-                                    .rotate(6f)
-                                    .zIndex(1f),
-                                fromDate = startDate,
-                                toDate = actualFinishDate
-                            )
-                            Cross(
-                                modifier = Modifier.align(Alignment.Center)
-                            ) {
-                                CountDaysChip(
-                                    Modifier,
-                                    fromDate = startDate,
-                                    toDate = finishDate!!
-                                )
-                            }
-                        } else if (finishDate !== null && bigVariant) {
-                            CountDaysChip(
-                                Modifier.align(Alignment.Center),
-                                fromDate = startDate,
-                                toDate = finishDate
-                            )
-                        }
-                    }
+//                    Box(
+//                        modifier = Modifier
+//                    ) {
+//                        Arrow(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .padding(horizontal = if (bigVariant) 16.dp else 8.dp)
+//                                .fillMaxHeight()
+//                        )
+//                        if (actualFinishDate !== null && bigVariant) {
+//                            CountDaysChip(
+//                                Modifier
+//                                    .align(Alignment.Center)
+//                                    .offset(6.dp, (-12).dp)
+//                                    .rotate(6f)
+//                                    .zIndex(1f),
+//                                fromDate = startDate,
+//                                toDate = actualFinishDate
+//                            )
+//                            Cross(
+//                                modifier = Modifier.align(Alignment.Center)
+//                            ) {
+//                                CountDaysChip(
+//                                    Modifier,
+//                                    fromDate = startDate,
+//                                    toDate = finishDate!!
+//                                )
+//                            }
+//                        } else if (finishDate !== null && bigVariant) {
+//                            CountDaysChip(
+//                                Modifier.align(Alignment.Center),
+//                                fromDate = startDate,
+//                                toDate = finishDate
+//                            )
+//                        }
+//                    }
 
-                    Column(horizontalAlignment = Alignment.End) {
-                        Box {
-                            if (actualFinishDate !== null) {
-                                Text(
-                                    modifier = Modifier
-                                        .offset((-4).dp, (-20).dp)
-                                        .rotate(6f),
-                                    text = prettyDate(
-                                        actualFinishDate,
-                                        pattern = "dd MMM",
-                                        simplifyIfToday = false,
-                                    ),
-                                    softWrap = false,
-                                    overflow = TextOverflow.Ellipsis,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontSize = if (bigVariant) MaterialTheme.typography.bodySmall.fontSize else MaterialTheme.typography.labelSmall.fontSize,
-                                )
-
-                                Cross {
-                                    Box(Modifier.wrapContentSize()) {
-                                        Text(
-                                            text = if (finishDate !== null) {
-                                                prettyDate(
-                                                    finishDate,
-                                                    pattern = "dd MMM",
-                                                    simplifyIfToday = false,
-                                                )
-                                            } else {
-                                                "-"
-                                            },
-                                            softWrap = false,
-                                            overflow = TextOverflow.Ellipsis,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            fontSize = if (bigVariant) MaterialTheme.typography.bodySmall.fontSize else MaterialTheme.typography.labelSmall.fontSize,
-                                        )
-                                    }
-                                }
-                            } else {
-                                Text(
-                                    text = if (finishDate !== null) {
-                                        prettyDate(
-                                            finishDate,
-                                            pattern = "dd MMM",
-                                            simplifyIfToday = false,
-                                        )
-                                    } else {
-                                        "-"
-                                    },
-                                    softWrap = false,
-                                    overflow = TextOverflow.Ellipsis,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontSize = if (bigVariant) MaterialTheme.typography.bodySmall.fontSize else MaterialTheme.typography.labelSmall.fontSize,
-                                )
-                            }
-                        }
-                    }
-                },
-            )
+//                    Column(horizontalAlignment = Alignment.End) {
+//                        Box {
+//                            if (actualFinishDate !== null) {
+//                                Text(
+//                                    modifier = Modifier
+//                                        .offset((-4).dp, (-20).dp)
+//                                        .rotate(6f),
+//                                    text = prettyDate(
+//                                        actualFinishDate,
+//                                        pattern = "dd MMM",
+//                                        simplifyIfToday = false,
+//                                    ),
+//                                    softWrap = false,
+//                                    overflow = TextOverflow.Ellipsis,
+//                                    style = MaterialTheme.typography.bodyMedium,
+//                                    fontSize = if (bigVariant) MaterialTheme.typography.bodySmall.fontSize else MaterialTheme.typography.labelSmall.fontSize,
+//                                )
+//
+//                                Cross {
+//                                    Box(Modifier.wrapContentSize()) {
+//                                        Text(
+//                                            text = if (finishDate !== null) {
+//                                                prettyDate(
+//                                                    finishDate,
+//                                                    pattern = "dd MMM",
+//                                                    simplifyIfToday = false,
+//                                                )
+//                                            } else {
+//                                                "-"
+//                                            },
+//                                            softWrap = false,
+//                                            overflow = TextOverflow.Ellipsis,
+//                                            style = MaterialTheme.typography.bodyMedium,
+//                                            fontSize = if (bigVariant) MaterialTheme.typography.bodySmall.fontSize else MaterialTheme.typography.labelSmall.fontSize,
+//                                        )
+//                                    }
+//                                }
+//                            } else {
+//                                Text(
+//                                    text = if (finishDate !== null) {
+//                                        prettyDate(
+//                                            finishDate,
+//                                            pattern = "dd MMM",
+//                                            simplifyIfToday = false,
+//                                        )
+//                                    } else {
+//                                        "-"
+//                                    },
+//                                    softWrap = false,
+//                                    overflow = TextOverflow.Ellipsis,
+//                                    style = MaterialTheme.typography.bodyMedium,
+//                                    fontSize = if (bigVariant) MaterialTheme.typography.bodySmall.fontSize else MaterialTheme.typography.labelSmall.fontSize,
+//                                )
+//                            }
+//                        }
+//                    }
+//                },
+//            )
         }
     )
 }
 
-@Composable
-fun CountDaysChip(modifier: Modifier = Modifier, fromDate: Date, toDate: Date) {
-    Surface(
-        modifier = modifier
-            .requiredHeight(24.dp),
-        shape = CircleShape,
-        color = LocalContentColor.current,
-        contentColor = MaterialTheme.colorScheme.surface,
-    ) {
-        val days = countDays(toDate, fromDate)
-
-        Box(
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                modifier = Modifier.padding(12.dp, 0.dp),
-                text = String.format(
-                    pluralStringResource(
-                        R.plurals.days_count,
-                        count = days
-                    ),
-                    days,
-                ),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        }
-    }
-}
+//@Composable
+//fun CountDaysChip(modifier: Modifier = Modifier, fromDate: Date, toDate: Date) {
+//    Surface(
+//        modifier = modifier
+//            .requiredHeight(24.dp),
+//        shape = CircleShape,
+//        color = LocalContentColor.current,
+//        contentColor = MaterialTheme.colorScheme.surface,
+//    ) {
+//        val days = countDays(toDate, fromDate)
+//
+//        Box(
+//            contentAlignment = Alignment.Center,
+//        ) {
+//            Text(
+//                modifier = Modifier.padding(12.dp, 0.dp),
+//                text = String.format(
+//                    pluralStringResource(
+//                        R.plurals.days_count,
+//                        count = days
+//                    ),
+//                    days,
+//                ),
+//                style = MaterialTheme.typography.bodyMedium,
+//            )
+//        }
+//    }
+//}
 
 @Composable
 fun Cross(
@@ -270,44 +270,44 @@ fun Arrow(
     }
 }
 
-fun growByMiddleChildRowMeasurePolicy(localDensity: Density) =
-    MeasurePolicy { measurables, constraints ->
-        val minMiddleWidth = with(localDensity) { (24 + 32).dp.toPx().toInt() }
-
-        val first = measurables[0]
-            .measure(
-                constraints.copy(
-                    maxWidth = (constraints.maxWidth - minMiddleWidth) / 2
-                )
-            )
-        val last = measurables[2]
-            .measure(
-                constraints.copy(
-                    maxWidth = (constraints.maxWidth - minMiddleWidth) / 2
-                )
-            )
-
-        val height = listOf(first, last).minOf { it.height }
-
-        layout(constraints.maxWidth, height) {
-            first.placeRelative(0, 0, 0f)
-
-            val middleWidth =
-                (constraints.maxWidth - first.width - last.width).coerceAtLeast(minMiddleWidth)
-
-            val middle = measurables[1]
-                .measure(
-                    constraints.copy(
-                        maxWidth = middleWidth,
-                        minWidth = middleWidth,
-                    )
-                )
-
-            middle.placeRelative(first.width, 0, 0f)
-
-            last.placeRelative(constraints.maxWidth - last.width, 0, 0f)
-        }
-    }
+//fun growByMiddleChildRowMeasurePolicy(localDensity: Density) =
+//    MeasurePolicy { measurables, constraints ->
+//        val minMiddleWidth = with(localDensity) { (24 + 32).dp.toPx().toInt() }
+//
+//        val first = measurables[0]
+//            .measure(
+//                constraints.copy(
+//                    maxWidth = (constraints.maxWidth - minMiddleWidth) / 2
+//                )
+//            )
+//        val last = measurables[2]
+//            .measure(
+//                constraints.copy(
+//                    maxWidth = (constraints.maxWidth - minMiddleWidth) / 2
+//                )
+//            )
+//
+//        val height = listOf(first, last).minOf { it.height }
+//
+//        layout(constraints.maxWidth, height) {
+//            first.placeRelative(0, 0, 0f)
+//
+//            val middleWidth =
+//                (constraints.maxWidth - first.width - last.width).coerceAtLeast(minMiddleWidth)
+//
+//            val middle = measurables[1]
+//                .measure(
+//                    constraints.copy(
+//                        maxWidth = middleWidth,
+//                        minWidth = middleWidth,
+//                    )
+//                )
+//
+//            middle.placeRelative(first.width, 0, 0f)
+//
+//            last.placeRelative(constraints.maxWidth - last.width, 0, 0f)
+//        }
+//    }
 
 @Preview
 @Composable

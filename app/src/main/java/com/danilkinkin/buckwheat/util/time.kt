@@ -59,6 +59,16 @@ fun isSameDay(timestampA: Long, timestampB: Long): Boolean {
 fun isSameDay(dateA: Date, dateB: Date): Boolean {
     return roundToDay(dateA) == roundToDay(dateB)
 }
+
+fun isSameMonth(timestampA: Long, timestampB: Long): Boolean {
+    return isSameMonth(Date(timestampA), Date(timestampB))
+}
+
+fun isSameMonth(dateA: Date, dateB: Date): Boolean {
+    return dateA.toLocalDate().year == dateB.toLocalDate().year &&
+            dateA.toLocalDate().month == dateB.toLocalDate().month
+
+}
 @Composable
 fun getWeek(): Array<DayOfWeek> {
     val locale = LocalConfiguration.current.locales[0]

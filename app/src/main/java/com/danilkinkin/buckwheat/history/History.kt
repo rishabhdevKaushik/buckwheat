@@ -1,5 +1,6 @@
 package com.danilkinkin.buckwheat.history
 
+import android.util.Log
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -35,6 +36,7 @@ import com.danilkinkin.buckwheat.ui.colorEditor
 import com.danilkinkin.buckwheat.data.ExtendCurrency
 import com.danilkinkin.buckwheat.data.entities.TransactionType
 import com.danilkinkin.buckwheat.util.isSameDay
+import com.danilkinkin.buckwheat.util.isSameMonth
 import com.danilkinkin.buckwheat.util.observeLiveData
 import com.danilkinkin.buckwheat.util.toDate
 import com.danilkinkin.buckwheat.util.toLocalDate
@@ -72,6 +74,9 @@ fun History(
         var lastSpentDate: LocalDate? = null
         var lastDaySpendTotal: BigDecimal = BigDecimal.ZERO
         var lastDayIncomeTotal: BigDecimal = BigDecimal.ZERO
+        var lastSpentMonth: LocalDate? = null
+        var lastMonthSpendTotal: BigDecimal = BigDecimal.ZERO
+        var lastMonthIncomeTotal: BigDecimal = BigDecimal.ZERO
 
         transactions
             .forEach { transaction ->
@@ -84,12 +89,12 @@ fun History(
                         composedList.add(
                             RowEntity(
                                 type = RowEntityType.DayTotal,
-                                key = "total-${lastSpentDate}",
-                                contentHash = "total-${lastSpentDate}",
+                                key = "dayTotal-${lastSpentDate}",
+                                contentHash = "dayTotal-${lastSpentDate}",
                                 transaction = null,
                                 day = lastSpentDate!!,
-                                daySpendTotal = lastDaySpendTotal,
-                                dayIncomeTotal = lastDayIncomeTotal,
+                                spendTotal = lastDaySpendTotal,
+                                incomeTotal = lastDayIncomeTotal,
                             )
                         )
                     }
@@ -105,14 +110,38 @@ fun History(
                             contentHash = "header-${lastSpentDate}",
                             transaction = null,
                             day = lastSpentDate!!,
-                            daySpendTotal = null,
-                            dayIncomeTotal = null
+                            spendTotal = null,
+                            incomeTotal = null
                         )
                     )
                 }
 
+                if(lastSpentMonth === null || !isSameMonth(
+                        transaction.date.time,
+                        lastSpentMonth!!.toDate().time
+                    )) {
+                    if (lastSpentMonth !== null) {
+                        composedList.add(
+                            RowEntity(
+                                type = RowEntityType.MonthTotal,
+                                key = "monthTotal-${lastSpentMonth}",
+                                contentHash = "monthTotal-${lastSpentMonth}",
+                                transaction = null,
+                                day = lastSpentMonth!!,
+                                spendTotal = lastMonthSpendTotal,
+                                incomeTotal = lastMonthIncomeTotal,
+                            )
+                        )
+                    }
+
+                    lastSpentMonth = transaction.date.toLocalDate()
+                    lastMonthSpendTotal = BigDecimal.ZERO
+                    lastMonthIncomeTotal = BigDecimal.ZERO
+                }
+
                 if (transaction.type === TransactionType.SPENT) {
                     lastDaySpendTotal += transaction.value
+                    lastMonthSpendTotal += transaction.value
 
                     composedList.add(
                         RowEntity(
@@ -121,22 +150,23 @@ fun History(
                             contentHash = "spent-${transaction.uid}",
                             transaction = transaction,
                             day = lastSpentDate!!,
-                            daySpendTotal = null,
-                            dayIncomeTotal = null
+                            spendTotal = null,
+                            incomeTotal = null
                         )
                     )
                 } else {
                     lastDayIncomeTotal += transaction.value
+                    lastMonthIncomeTotal += transaction.value
 
                     composedList.add(
                         RowEntity(
                             type = RowEntityType.Income,
-                            key = "spent-${transaction.uid}",
-                            contentHash = "spent-${transaction.uid}",
+                            key = "income-${transaction.uid}",
+                            contentHash = "income-${transaction.uid}",
                             transaction = transaction,
                             day = lastSpentDate!!,
-                            daySpendTotal = null,
-                            dayIncomeTotal = null
+                            spendTotal = null,
+                            incomeTotal = null
                         )
                     )
                 }
@@ -146,12 +176,26 @@ fun History(
             composedList.add(
                 RowEntity(
                     type = RowEntityType.DayTotal,
-                    key = "total-${lastSpentDate!!}",
-                    contentHash = "total-${lastSpentDate}",
+                    key = "dayTotal-${lastSpentDate!!}",
+                    contentHash = "dayTotal-${lastSpentDate}",
                     transaction = null,
                     day = lastSpentDate!!,
-                    daySpendTotal = lastDaySpendTotal,
-                    dayIncomeTotal = lastDayIncomeTotal,
+                    spendTotal = lastDaySpendTotal,
+                    incomeTotal = lastDayIncomeTotal,
+                )
+            )
+        }
+
+        if (transactions.isNotEmpty() && lastSpentMonth !== null) {
+            composedList.add(
+                RowEntity(
+                    type = RowEntityType.MonthTotal,
+                    key = "monthTotal-${lastSpentMonth!!}",
+                    contentHash = "monthTotal-${lastSpentMonth}",
+                    transaction = null,
+                    day = lastSpentMonth!!,
+                    spendTotal = lastMonthSpendTotal,
+                    incomeTotal = lastMonthIncomeTotal,
                 )
             )
         }
@@ -213,10 +257,22 @@ fun History(
                     when (row.type) {
                         RowEntityType.DayDivider -> HistoryDateDivider(row.day)
                         RowEntityType.DayTotal -> TotalPerDay(
-                            spentPerDay = row.daySpendTotal!!,
-                            incomePerDay = row.dayIncomeTotal!!,
+                            spentPerDay = row.spendTotal!!,
+                            incomePerDay = row.incomeTotal!!,
                             currency = currency.value,
                         )
+                        RowEntityType.MonthTotal -> {
+                            TotalPerMonth(
+                                spentPerMonth = row.spendTotal!!,
+                                incomePerMonth = row.incomeTotal!!,
+                                currency = currency.value,
+                                currentMonth = row.day.toDate()!!,
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                                ),
+                            )
+                        }
                         RowEntityType.Spent -> if (!readOnly) SwipeActions(
                             startActionsConfig = SwipeActionsConfig(
                                 threshold = 0.4f,
@@ -401,28 +457,28 @@ fun History(
                     }
                 }
 
-                if (!readOnly) {
-                    item("budget-info") {
-                        WholeBudgetCard(
-                            modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
-                            budget = budget.value,
-                            currency = currency.value,
-                            startDate = startPeriodDate.value,
-                            finishDate = finishPeriodDate.value,
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                            ),
-                        )
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(
-                                    LocalWindowInsets.current.calculateTopPadding()
-                                )
-                        )
-                    }
-                }
+//                if (!readOnly) {
+//                    item("budget-info") {
+//                        WholeBudgetCard(
+//                            modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
+//                            budget = budget.value,
+//                            currency = currency.value,
+//                            startDate = startPeriodDate.value,
+//                            finishDate = finishPeriodDate.value,
+//                            colors = CardDefaults.cardColors(
+//                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+//                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+//                            ),
+//                        )
+//                        Box(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .height(
+//                                    LocalWindowInsets.current.calculateTopPadding()
+//                                )
+//                        )
+//                    }
+//                }
             }
 
             if (historyList.isEmpty()) {

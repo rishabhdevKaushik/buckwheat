@@ -46,13 +46,21 @@ fun TotalPerDay(
         Text(
             text = "- " + numberFormat(context, spentPerDay, currency = currency),
             style = MaterialTheme.typography.titleMedium,
-            color = colorSeed,
+            color = colorOnEditor.copy(
+                red = (colorOnEditor.red * 0.9f + 0.1f * 2f),   // boost red
+                green = (colorOnEditor.green * 0.9f + 0.1f * 0.1f),
+                blue = (colorOnEditor.blue * 0.9f + 0.1f * 0.1f),
+            ),
         )
         Spacer(Modifier.width(4.dp))
         Text(
             text = "+ " + numberFormat(context, incomePerDay, currency = currency),
             style = MaterialTheme.typography.titleMedium,
-            color = colorGood,
+            color = colorOnEditor.copy(
+                red = (colorOnEditor.red * 0.9f + 0.1f * 0.1f),
+                green = (colorOnEditor.green * 0.9f + 0.1f * 3f),  // boost green
+                blue = (colorOnEditor.blue * 0.9f + 0.1f * 0.1f),
+            ),
         )
     }
 }

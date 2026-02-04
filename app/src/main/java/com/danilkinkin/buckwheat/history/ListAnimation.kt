@@ -9,13 +9,12 @@ import androidx.compose.runtime.*
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import com.danilkinkin.buckwheat.data.entities.Transaction
-import com.danilkinkin.buckwheat.data.entities.TransactionType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.math.BigDecimal
 import java.time.LocalDate
 
-enum class RowEntityType { DayDivider, Spent, DayTotal, Income }
+enum class RowEntityType { DayDivider, Spent, DayTotal, Income, MonthTotal }
 
 data class RowEntity(
     val type: RowEntityType,
@@ -23,8 +22,8 @@ data class RowEntity(
     var contentHash: String? = null,
     val day: LocalDate,
     val transaction: Transaction?,
-    var daySpendTotal: BigDecimal?,
-    var dayIncomeTotal: BigDecimal?,
+    var spendTotal: BigDecimal?,
+    var incomeTotal: BigDecimal?,
 )
 
 @Suppress("UpdateTransitionLabel", "TransitionPropertiesLabel")
@@ -120,9 +119,9 @@ fun updateAnimatedItemsState(
             override fun onChanged(position: Int, count: Int, payload: Any?) {
                 for (i in 0 until count) {
                     if (compositeList[position + i].item.type === RowEntityType.Spent){
-                        compositeList[position + i].item.daySpendTotal = (payload as RowEntity).daySpendTotal
+                        compositeList[position + i].item.spendTotal = (payload as RowEntity).spendTotal
                     } else {
-                        compositeList[position + i].item.dayIncomeTotal = (payload as RowEntity).dayIncomeTotal
+                        compositeList[position + i].item.incomeTotal = (payload as RowEntity).incomeTotal
 
                     }
                     compositeList[position + i].item.contentHash = payload.contentHash
