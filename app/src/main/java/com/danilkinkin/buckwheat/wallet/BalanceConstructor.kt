@@ -50,7 +50,6 @@ fun BalanceConstructor(
     forceChange: Boolean = false,
     appViewModel: AppViewModel = hiltViewModel(),
     spendsViewModel: SpendsViewModel = hiltViewModel(),
-//    onChange: (budget: BigDecimal, finishDate: Date?) -> Unit = { _, _ -> },
     onChange: (balance: BigDecimal) -> Unit = { _ -> },
 ) {
     val context = LocalContext.current
@@ -60,30 +59,9 @@ fun BalanceConstructor(
     val isFocused by interactionSource.collectIsFocusedAsState()
     val budget by spendsViewModel.budget.observeAsState(BigDecimal.ZERO)
     val balance by spendsViewModel.balance.observeAsState(BigDecimal.ZERO)
-    val spent by spendsViewModel.spent.observeAsState(BigDecimal.ZERO)
-    val spentFromDailyBudget by spendsViewModel.spentFromDailyBudget.observeAsState(BigDecimal.ZERO)
     val startPeriodDate by spendsViewModel.startPeriodDate.observeAsState(Date())
     val finishPeriodDate by spendsViewModel.finishPeriodDate.observeAsState(Date())
 
-//    var rawBudget by remember {
-//        if (budget.isZero()) {
-//            return@remember mutableStateOf("")
-//        }
-//
-//        val restBudget =
-//            (budget - spent - spentFromDailyBudget)
-//                .setScale(2, RoundingMode.HALF_UP)
-//                .stripTrailingZeros()
-//                .toPlainString()
-//
-//        val converted = if (restBudget != "0") {
-//            tryConvertStringToNumber(restBudget)
-//        } else {
-//            Triple("", "0", "")
-//        }
-//
-//        mutableStateOf(converted.first + converted.second)
-//    }
 
     var rawBalance by remember {
         if (balance.isZero()) {

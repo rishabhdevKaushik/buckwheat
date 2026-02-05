@@ -18,7 +18,6 @@ import com.danilkinkin.buckwheat.data.dao.TransactionDao
 import com.danilkinkin.buckwheat.data.entities.TransactionType
 import com.danilkinkin.buckwheat.errorForReport
 import com.danilkinkin.buckwheat.util.countDays
-import com.danilkinkin.buckwheat.util.isSameDay
 import com.danilkinkin.buckwheat.util.roundToDay
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
@@ -29,6 +28,7 @@ import java.math.RoundingMode
 import java.util.Date
 import javax.inject.Inject
 import com.danilkinkin.buckwheat.editor.transactionType.TransactionTypeHelper.setDefaultTransactionType
+import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlin.plus
 
 val currencyStoreKey = stringPreferencesKey("currency")
@@ -41,6 +41,7 @@ val spentStoreKey = stringPreferencesKey("spent")
 val dailyBudgetStoreKey = stringPreferencesKey("dailyBudget")
 val spentFromDailyBudgetStoreKey = stringPreferencesKey("spentFromDailyBudget")
 val lastChangeDailyBudgetDateStoreKey = longPreferencesKey("lastChangeDailyBudgetDate")
+val everSetBalanceDataStoreKey = longPreferencesKey("everSetBalance")
 val startPeriodDateStoreKey = longPreferencesKey("startPeriodDate")
 val finishPeriodDateStoreKey = longPreferencesKey("finishPeriodDate")
 val finishPeriodActualDateStoreKey = longPreferencesKey("finishPeriodActualDate")
@@ -73,6 +74,11 @@ class SpendsRepository @Inject constructor(
         (it[balanceStoreKey]?.toBigDecimal() ?: BigDecimal.ZERO).setScale(2)
     }
 
+    fun getBalanceNullable() = context.budgetDataStore.data.map {
+//        (it[balanceStoreKey]?.toBigDecimal() ?: BigDecimal.ZERO).setScale(2)
+        (it[balanceStoreKey]?.toBigDecimal()?.setScale(2))
+    }
+
     fun getSpent() = context.budgetDataStore.data.map {
         (it[spentStoreKey]?.toBigDecimal() ?: BigDecimal.ZERO).setScale(2)
     }
@@ -99,6 +105,10 @@ class SpendsRepository @Inject constructor(
 
     fun getLastChangeDailyBudgetDate() = context.budgetDataStore.data.map {
         it[lastChangeDailyBudgetDateStoreKey]?.let { value -> Date(value) }
+    }
+
+    fun getEverSetBalance() = context.budgetDataStore.data.map {
+        it[everSetBalanceDataStoreKey]?.let { value -> value == 1L }
     }
 
     fun getCurrency() = context.budgetDataStore.data.map {
@@ -174,6 +184,7 @@ class SpendsRepository @Inject constructor(
     suspend fun setBalance(newBalance: BigDecimal) {
         context.budgetDataStore.edit {
             it[balanceStoreKey] = newBalance.toString()
+            it[everSetBalanceDataStoreKey] = 1
 
             Log.d(
                 "SpendsRepository",
@@ -226,24 +237,24 @@ class SpendsRepository @Inject constructor(
 //        }
 //    }
 
-    suspend fun updateDailyBudget(newDailyBudget: BigDecimal) {
-        context.budgetDataStore.edit {
-            it[dailyBudgetStoreKey] = newDailyBudget.toString()
-            it[lastChangeDailyBudgetDateStoreKey] = roundToDay(getCurrentDateUseCase()).time
-
-            Log.d(
-                "SpendsRepository",
-                "Update daily budget ["
-                        + "daily budget: ${it[dailyBudgetStoreKey]} "
-                        + "spent: ${it[spentStoreKey]}"
-                        + "]"
-            )
-        }
-
-
-        val setDailyBudgetTransaction = transactionDao.getAll(TransactionType.SET_DAILY_BUDGET).asFlow().first().last()
-        transactionDao.update(setDailyBudgetTransaction.copy(value = newDailyBudget))
-    }
+//    suspend fun updateDailyBudget(newDailyBudget: BigDecimal) {
+//        context.budgetDataStore.edit {
+//            it[dailyBudgetStoreKey] = newDailyBudget.toString()
+//            it[lastChangeDailyBudgetDateStoreKey] = roundToDay(getCurrentDateUseCase()).time
+//
+//            Log.d(
+//                "SpendsRepository",
+//                "Update daily budget ["
+//                        + "daily budget: ${it[dailyBudgetStoreKey]} "
+//                        + "spent: ${it[spentStoreKey]}"
+//                        + "]"
+//            )
+//        }
+//
+//
+//        val setDailyBudgetTransaction = transactionDao.getAll(TransactionType.SET_DAILY_BUDGET).asFlow().first().last()
+//        transactionDao.update(setDailyBudgetTransaction.copy(value = newDailyBudget))
+//    }
 
     suspend fun setDailyBudget(newDailyBudget: BigDecimal) {
         context.budgetDataStore.edit {

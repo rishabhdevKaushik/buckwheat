@@ -1,5 +1,6 @@
 package com.danilkinkin.buckwheat.data
 
+import android.util.*
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -37,6 +38,7 @@ class SpendsViewModel @Inject constructor(
     var finishPeriodDate = spendsRepository.getFinishPeriodDate().asLiveData()
     var finishPeriodActualDate = spendsRepository.getFinishPeriodActualDate().asLiveData()
     var lastChangeDailyBudgetDate = spendsRepository.getLastChangeDailyBudgetDate().asLiveData()
+    var everSetBalance = spendsRepository.getEverSetBalance().asLiveData()
 
     var currency = spendsRepository.getCurrency().asLiveData()
     var restedBudgetDistributionMethod =
@@ -44,7 +46,6 @@ class SpendsViewModel @Inject constructor(
     var hideOverspendingWarn = spendsRepository.getHideOverspendingWarn().asLiveData()
 
     var requireDistributionRestedBudget = MutableLiveData(false)
-    var requireSetBudget = MutableLiveData(false)
     var requireSetBalance = MutableLiveData(false)
     var periodFinished = MutableLiveData(false)
     var lastRemovedTransaction: MutableLiveData<Transaction> = MutableLiveData()
@@ -54,23 +55,14 @@ class SpendsViewModel @Inject constructor(
         runChangeDayAction()
         runScheduledDetectChangeDayTask()
 
-        balance.observeForever { balanceValue ->
-            if (balanceValue == null || balanceValue.compareTo(BigDecimal.ZERO) == 0) {
-                requireSetBalance.value = true
-            }
-        }
+//        balance.observeForever { balanceValue ->
+//            if (balanceValue == null || balanceValue.compareTo(BigDecimal.ZERO) == 0) {
+//                requireSetBalance.value = true
+//            }
+//        }
     }
 
     // Budget handling
-
-//    fun setBudget(newBudget: BigDecimal, newFinishDate: Date) {
-//        viewModelScope.launch {
-//            spendsRepository.setBudget(newBudget, newFinishDate)
-//
-//            requireSetBudget.value = false
-//            periodFinished.value = false
-//        }
-//    }
 
     fun setBalance(newBalance: BigDecimal) {
         viewModelScope.launch {
@@ -90,14 +82,12 @@ class SpendsViewModel @Inject constructor(
 
     fun addTransaction(transactionForAdd: Transaction) {
         viewModelScope.launch {
-//            spendsRepository.addSpent(transactionForAdd)
             spendsRepository.addTransaction(transactionForAdd)
         }
     }
 
     fun removeTransaction(transactionForRemove: Transaction, silent: Boolean = false) {
         viewModelScope.launch {
-//            spendsRepository.removeSpent(transactionForRemove)
             spendsRepository.removeTransaction(transactionForRemove)
 
             if (!silent) {
@@ -106,13 +96,6 @@ class SpendsViewModel @Inject constructor(
         }
     }
 
-//    fun undoRemoveSpent() {
-//        viewModelScope.launch {
-//            lastRemovedTransaction.value?.let {
-//                spendsRepository.addSpent(it)
-//            }
-//        }
-//    }
     fun undoRemoveTransaction() {
         viewModelScope.launch {
             lastRemovedTransaction.value?.let {
@@ -173,6 +156,7 @@ class SpendsViewModel @Inject constructor(
             val spentFromDailyBudget = spendsRepository.getSpentFromDailyBudget().first()
             val restedBudgetDistributionMethod =
                 spendsRepository.getRestedBudgetDistributionMethod().first()
+            val everSetBalance = spendsRepository.getEverSetBalance().first()
 
             val finishDayNotReached = if (finishPeriodActualDate === null) {
                 finishPeriodDate !== null
@@ -220,8 +204,11 @@ class SpendsViewModel @Inject constructor(
                 }
 
 //                lastChangeDailyBudgetDate === null -> {
-//                    requireSetBudget.value = true
+//                    requireSetBalance.value = true
 //                }
+                everSetBalance == null || everSetBalance == false -> {
+                    requireSetBalance.value = true
+                }
 
                 finishTimeReached -> {
                     periodFinished.value = true

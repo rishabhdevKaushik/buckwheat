@@ -43,9 +43,6 @@ class RestBudgetPillViewModel @Inject constructor(
         val ths = this
 
         viewModelScope.launch {
-            val budget = spendsRepository.getBudget().first()
-            val spentFromDailyBudget = spendsRepository.getSpentFromDailyBudget().first()
-            val dailyBudget = spendsRepository.getDailyBudget().first()
             val balance = spendsRepository.getBalance().first()
             val currency = spendsRepository.getCurrency().first()
 
