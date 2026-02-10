@@ -28,6 +28,10 @@ import androidx.compose.ui.unit.dp
 import com.danilkinkin.buckwheat.util.getWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun DatePicker(
@@ -37,10 +41,30 @@ fun DatePicker(
 ) {
     val calendarUiState = calendarState.calendarUiState.value
     val dayWidth = remember { mutableStateOf(CELL_SIZE) }
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
+    fun calculateMonthHeaderIndex(calendarState: CalendarState, monthIndex: Int): Int {
+        var totalItems = 0
+        for (i in 0 until monthIndex) {
+            val month = calendarState.listMonths[i]
+            totalItems += 2 + month.weeks.size // header + daysOfWeek + weeks
+        }
+        return totalItems // Points to header of target month
+    }
+
+    LaunchedEffect(calendarState.initialMonthIndex) {
+        coroutineScope.launch {
+            val targetItemIndex = calculateMonthHeaderIndex(calendarState, calendarState.initialMonthIndex)
+            listState.scrollToItem(targetItemIndex)
+        }
+    }
+
 
     val localDensity = LocalDensity.current
 
     LazyColumn(
+        state = listState,
         modifier = modifier
             .onGloballyPositioned {
                 dayWidth.value = with(localDensity) { it.size.width.toDp() / 7 }

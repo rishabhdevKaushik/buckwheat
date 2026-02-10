@@ -25,8 +25,9 @@ class CalendarState(
     )
     )
     val listMonths: List<Month>
+    val initialMonthIndex: Int
 
-    private val calendarStartDate: LocalDate = LocalDate.now().withDayOfMonth(1)
+    private val calendarStartDate: LocalDate = LocalDate.now().minusYears(10).withDayOfMonth(1)
     private val calendarEndDate: LocalDate = LocalDate.now().plusYears(2)
         .withMonth(12).withDayOfMonth(31)
 
@@ -38,23 +39,28 @@ class CalendarState(
     init {
         val tempListMonths = mutableListOf<Month>()
         var startYearMonth = YearMonth.from(disableBeforeDate?.toLocalDate()?.withDayOfMonth(1) ?: calendarStartDate)
+        var targetMonthIndex = 0
 
         for (numberMonth in 0..periodBetweenCalendarStartEnd.toTotalMonths()) {
-            val numberWeeks = startYearMonth.getNumberWeeks(context)
+            val ym = startYearMonth
+            val numberWeeks = ym.getNumberWeeks(context)
             val listWeekItems = mutableListOf<Week>()
             for (week in 0 until numberWeeks) {
-                listWeekItems.add(
-                    Week(
-                        number = week,
-                        yearMonth = startYearMonth
-                    )
-                )
+                listWeekItems.add(Week(number = week, yearMonth = ym))
             }
-            val month = Month(startYearMonth, listWeekItems)
+            val month = Month(ym, listWeekItems)
             tempListMonths.add(month)
+
+            if (selectDate != null && targetMonthIndex == 0 &&
+                !ym.isBefore(YearMonth.from(selectDate.toLocalDate())) &&
+                ym <= YearMonth.from(selectDate.toLocalDate())) {
+                targetMonthIndex = numberMonth.toInt()
+            }
+
             startYearMonth = startYearMonth.plusMonths(1)
         }
         listMonths = tempListMonths.toList()
+        initialMonthIndex = targetMonthIndex
 
         if (selectDate != null) setSelectedDay(selectDate.toLocalDate())
     }

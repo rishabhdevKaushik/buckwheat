@@ -22,6 +22,18 @@ import com.danilkinkin.buckwheat.ui.BuckwheatTheme
 import com.danilkinkin.buckwheat.util.prettyDate
 import com.danilkinkin.buckwheat.util.toDate
 import java.time.LocalDate
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
+
+
+@Composable
+fun windowHeight(fraction: Float): androidx.compose.ui.unit.Dp {
+    val containerSize = LocalWindowInfo.current.containerSize
+    val density = LocalDensity.current
+    val screenHeight = with(density) { containerSize.height.toDp() }
+    return (screenHeight.value * fraction).dp
+}
+
 
 @Composable
 fun DatePickerDialog(
@@ -33,7 +45,7 @@ fun DatePickerDialog(
 ) {
     val context = LocalContext.current
 
-    val datePickerState = remember {
+    val datePickerState = remember(initDate) {
         CalendarState(
             context,
             CalendarSelectionMode.SINGLE,
@@ -58,6 +70,7 @@ fun DatePickerDialog(
                 ),
                 modifier = Modifier
                     .widthIn(max = 500.dp)
+                    .heightIn(max = windowHeight(0.8f))
                     .padding(16.dp),
             ) {
                 Column(
@@ -127,7 +140,7 @@ private fun PreviewDefault(){
     BuckwheatTheme {
         DatePickerDialog(
             initDate = LocalDate.now(),
-            disableBeforeDate = LocalDate.now().minusDays(3),
+//            disableBeforeDate = LocalDate.now().minusDays(3),
             disableAfterDate = LocalDate.now().plusDays(10),
             onSelect = {},
             onClose = {},
