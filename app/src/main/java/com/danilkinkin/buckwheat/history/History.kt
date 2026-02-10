@@ -61,10 +61,8 @@ fun History(
     val coroutineScope = rememberCoroutineScope()
 
     var historyList by remember { mutableStateOf<List<RowEntity>>(emptyList()) }
-    val budget = spendsViewModel.budget.observeAsState(initial = BigDecimal.ZERO)
+    val transactions by spendsViewModel.transactions.observeAsState(initial = emptyList())
     val currency = spendsViewModel.currency.observeAsState(initial = ExtendCurrency.none())
-    val startPeriodDate = spendsViewModel.startPeriodDate.observeAsState(initial = Date())
-    val finishPeriodDate = spendsViewModel.finishPeriodDate.observeAsState(initial = Date())
     val scrollToBottom = remember { mutableStateOf(true) }
     val tutorial by appViewModel.getTutorialStage(TUTORS.SWIPE_EDIT_SPENT).observeAsState(TUTORIAL_STAGE.NONE)
     var isUserTrySwipe by remember { mutableStateOf(false) }
@@ -77,9 +75,35 @@ fun History(
         var lastSpentMonth: LocalDate? = null
         var lastMonthSpendTotal: BigDecimal = BigDecimal.ZERO
         var lastMonthIncomeTotal: BigDecimal = BigDecimal.ZERO
+        val monthTotals = mutableMapOf<LocalDate, Pair<BigDecimal, BigDecimal>>()
 
         transactions
             .forEach { transaction ->
+                val currentDay = transaction.date.toLocalDate()
+                val currentMonth = currentDay.withDayOfMonth(1)
+
+                // Insert MonthTotal at the top of the month (with 0 totals initially)
+                if(lastSpentMonth === null || !isSameMonth(
+                        transaction.date.time,
+                        lastSpentMonth!!.toDate().time
+                    )) {
+                    lastSpentMonth = currentMonth
+                    lastMonthSpendTotal = BigDecimal.ZERO
+                    lastMonthIncomeTotal = BigDecimal.ZERO
+
+                    composedList.add(
+                        RowEntity(
+                            type = RowEntityType.MonthTotal,
+                            key = "monthTotal-${lastSpentMonth}",
+                            contentHash = "monthTotal-${lastSpentMonth}",
+                            transaction = null,
+                            day = lastSpentMonth!!,
+                            spendTotal = lastMonthSpendTotal,
+                            incomeTotal = lastMonthIncomeTotal,
+                        )
+                    )
+                }
+
                 if (lastSpentDate === null || !isSameDay(
                         transaction.date.time,
                         lastSpentDate!!.toDate().time
@@ -99,7 +123,7 @@ fun History(
                         )
                     }
 
-                    lastSpentDate = transaction.date.toLocalDate()
+                    lastSpentDate = currentDay
                     lastDaySpendTotal = BigDecimal.ZERO
                     lastDayIncomeTotal = BigDecimal.ZERO
 
@@ -116,32 +140,14 @@ fun History(
                     )
                 }
 
-                if(lastSpentMonth === null || !isSameMonth(
-                        transaction.date.time,
-                        lastSpentMonth!!.toDate().time
-                    )) {
-                    if (lastSpentMonth !== null) {
-                        composedList.add(
-                            RowEntity(
-                                type = RowEntityType.MonthTotal,
-                                key = "monthTotal-${lastSpentMonth}",
-                                contentHash = "monthTotal-${lastSpentMonth}",
-                                transaction = null,
-                                day = lastSpentMonth!!,
-                                spendTotal = lastMonthSpendTotal,
-                                incomeTotal = lastMonthIncomeTotal,
-                            )
-                        )
-                    }
-
-                    lastSpentMonth = transaction.date.toLocalDate()
-                    lastMonthSpendTotal = BigDecimal.ZERO
-                    lastMonthIncomeTotal = BigDecimal.ZERO
-                }
 
                 if (transaction.type === TransactionType.SPENT) {
                     lastDaySpendTotal += transaction.value
                     lastMonthSpendTotal += transaction.value
+
+                    val monthKey = lastSpentMonth!!
+                    val (spend, income) = monthTotals[monthKey] ?: (BigDecimal.ZERO to BigDecimal.ZERO)
+                    monthTotals[monthKey] = (spend + transaction.value) to income
 
                     composedList.add(
                         RowEntity(
@@ -157,6 +163,10 @@ fun History(
                 } else {
                     lastDayIncomeTotal += transaction.value
                     lastMonthIncomeTotal += transaction.value
+
+                    val monthKey = lastSpentMonth!!
+                    val (spend, income) = monthTotals[monthKey] ?: (BigDecimal.ZERO to BigDecimal.ZERO)
+                    monthTotals[monthKey] = spend to (income + transaction.value)
 
                     composedList.add(
                         RowEntity(
@@ -186,21 +196,37 @@ fun History(
             )
         }
 
-        if (transactions.isNotEmpty() && lastSpentMonth !== null) {
-            composedList.add(
-                RowEntity(
-                    type = RowEntityType.MonthTotal,
-                    key = "monthTotal-${lastSpentMonth!!}",
-                    contentHash = "monthTotal-${lastSpentMonth}",
-                    transaction = null,
-                    day = lastSpentMonth!!,
-                    spendTotal = lastMonthSpendTotal,
-                    incomeTotal = lastMonthIncomeTotal,
+        // Do NOT add a final MonthTotal here; it’s already inserted at the top of each month
+        // if (transactions.isNotEmpty() && lastSpentMonth !== null) {
+        //     composedList.add(
+        //         RowEntity(
+        //             type = RowEntityType.MonthTotal,
+        //             key = "monthTotal-${lastSpentMonth!!}",
+        //             contentHash = "monthTotal-${lastSpentMonth}",
+        //             transaction = null,
+        //             day = lastSpentMonth!!,
+        //             spendTotal = lastMonthSpendTotal,
+        //             incomeTotal = lastMonthIncomeTotal,
+        //         )
+        //     )
+        // }
+
+        // Patch MonthTotal rows with correct totals
+        val patchedList = composedList.map { row ->
+            if (row.type === RowEntityType.MonthTotal) {
+                val monthKey = row.day.withDayOfMonth(1)
+                val (spendTotal, incomeTotal) = monthTotals[monthKey]
+                    ?: (BigDecimal.ZERO to BigDecimal.ZERO)
+                row.copy(
+                    spendTotal = spendTotal,
+                    incomeTotal = incomeTotal
                 )
-            )
+            } else {
+                row
+            }
         }
 
-        historyList = composedList.toList().reversed().map { it }
+        historyList = patchedList.toList().reversed().map { it }
     }
 
     DisposableEffect(Unit) {
@@ -213,7 +239,6 @@ fun History(
             if (historyList.isNotEmpty() && isUserTrySwipe) {
                 appViewModel.passTutorial(TUTORS.SWIPE_EDIT_SPENT)
             }
-
         }
     }
 
@@ -457,8 +482,8 @@ fun History(
                     }
                 }
 
-//                if (!readOnly) {
-//                    item("budget-info") {
+                if (!readOnly) {
+                    item("budget-info") {
 //                        WholeBudgetCard(
 //                            modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
 //                            budget = budget.value,
@@ -470,15 +495,15 @@ fun History(
 //                                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
 //                            ),
 //                        )
-//                        Box(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .height(
-//                                    LocalWindowInsets.current.calculateTopPadding()
-//                                )
-//                        )
-//                    }
-//                }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(
+                                    LocalWindowInsets.current.calculateTopPadding()
+                                )
+                        )
+                    }
+                }
             }
 
             if (historyList.isEmpty()) {
@@ -509,7 +534,6 @@ fun History(
                         contentDescription = null,
                         modifier = Modifier.size(ButtonDefaults.IconSize)
                     )
-
                 }
             }
         }

@@ -39,18 +39,18 @@ fun TotalPerMonth(
 ) {
     val context = LocalContext.current
 
+//            Spacer(modifier = Modifier.height(148.dp))
     Card(
-        modifier = Modifier.padding(horizontal = 8.dp),
+        modifier = Modifier.padding(horizontal = 8.dp).padding(top = 16.dp),
         colors = colors,
         content = {
 
-            Spacer(modifier = Modifier.height(8.dp))
 
             Column {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
+                        .padding(start = 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(
@@ -86,7 +86,7 @@ fun TotalPerMonth(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, end = 24.dp)
+                        .padding(start = 16.dp, end = 16.dp)
                         .offset(y = (-4).dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
@@ -114,7 +114,7 @@ fun TotalPerMonth(
                     ),
                     softWrap = false,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     fontSize = if (bigVariant) MaterialTheme.typography.bodySmall.fontSize else MaterialTheme.typography.labelSmall.fontSize,
                     modifier = Modifier.padding(start = 8.dp),
                 )
@@ -123,7 +123,7 @@ fun TotalPerMonth(
             Spacer(modifier = Modifier.height(16.dp))
         }
     )
-    Spacer(modifier = Modifier.height(148.dp))
+    Spacer(modifier = Modifier.height(8.dp))
 }
 
 @Composable

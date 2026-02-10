@@ -38,7 +38,6 @@ class SpendsViewModel @Inject constructor(
     var finishPeriodDate = spendsRepository.getFinishPeriodDate().asLiveData()
     var finishPeriodActualDate = spendsRepository.getFinishPeriodActualDate().asLiveData()
     var lastChangeDailyBudgetDate = spendsRepository.getLastChangeDailyBudgetDate().asLiveData()
-    var everSetBalance = spendsRepository.getEverSetBalance().asLiveData()
 
     var currency = spendsRepository.getCurrency().asLiveData()
     var restedBudgetDistributionMethod =
