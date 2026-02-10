@@ -52,7 +52,7 @@ fun TotalPerDay(
                 blue = (colorOnEditor.blue * 0.9f + 0.1f * 0.1f),
             ),
         )
-        Spacer(Modifier.width(4.dp))
+        Spacer(Modifier.width(6.dp))
         Text(
             text = "+ " + numberFormat(context, incomePerDay, currency = currency),
             style = MaterialTheme.typography.titleMedium,

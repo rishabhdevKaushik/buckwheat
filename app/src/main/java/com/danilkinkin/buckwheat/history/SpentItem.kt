@@ -75,7 +75,7 @@ fun SpentItem(
                             top = 16.dp,
                             end = 32.dp,
                         ),
-                    text = prettyDate(transaction.date, shortMonth = true),
+                    text = prettyDate(transaction.date, forceHideDate = true),
                     style = MaterialTheme.typography.labelSmall,
                     color = colorOnEditor,
                     softWrap = false,

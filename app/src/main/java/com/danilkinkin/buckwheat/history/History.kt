@@ -75,31 +75,31 @@ fun History(
         var lastSpentMonth: LocalDate? = null
         var lastMonthSpendTotal: BigDecimal = BigDecimal.ZERO
         var lastMonthIncomeTotal: BigDecimal = BigDecimal.ZERO
-        val monthTotals = mutableMapOf<LocalDate, Pair<BigDecimal, BigDecimal>>()
+        val monthTotals = mutableMapOf<String, Pair<BigDecimal, BigDecimal>>()
 
         transactions
             .forEach { transaction ->
                 val currentDay = transaction.date.toLocalDate()
                 val currentMonth = currentDay.withDayOfMonth(1)
+                val monthKey = "monthTotal-${currentMonth}"
 
-                // Insert MonthTotal at the top of the month (with 0 totals initially)
                 if(lastSpentMonth === null || !isSameMonth(
                         transaction.date.time,
                         lastSpentMonth!!.toDate().time
                     )) {
                     lastSpentMonth = currentMonth
-                    lastMonthSpendTotal = BigDecimal.ZERO
-                    lastMonthIncomeTotal = BigDecimal.ZERO
+                    val monthTotalKey = "monthTotal-${lastSpentMonth}"
+                    val (lastMonthSpendTotal, lastMonthIncomeTotal) = monthTotals.getOrDefault(monthTotalKey, BigDecimal.ZERO to BigDecimal.ZERO)
 
                     composedList.add(
                         RowEntity(
                             type = RowEntityType.MonthTotal,
-                            key = "monthTotal-${lastSpentMonth}",
-                            contentHash = "monthTotal-${lastSpentMonth}",
+                            key = monthTotalKey,
+                            contentHash = monthTotalKey,
                             transaction = null,
                             day = lastSpentMonth!!,
                             spendTotal = lastMonthSpendTotal,
-                            incomeTotal = lastMonthIncomeTotal,
+                            incomeTotal = lastMonthIncomeTotal
                         )
                     )
                 }
@@ -145,9 +145,8 @@ fun History(
                     lastDaySpendTotal += transaction.value
                     lastMonthSpendTotal += transaction.value
 
-                    val monthKey = lastSpentMonth!!
-                    val (spend, income) = monthTotals[monthKey] ?: (BigDecimal.ZERO to BigDecimal.ZERO)
-                    monthTotals[monthKey] = (spend + transaction.value) to income
+                    val (currentSpend, currentIncome) = monthTotals[monthKey] ?: (BigDecimal.ZERO to BigDecimal.ZERO)
+                    monthTotals[monthKey] = (currentSpend + transaction.value) to currentIncome
 
                     composedList.add(
                         RowEntity(
@@ -164,9 +163,8 @@ fun History(
                     lastDayIncomeTotal += transaction.value
                     lastMonthIncomeTotal += transaction.value
 
-                    val monthKey = lastSpentMonth!!
-                    val (spend, income) = monthTotals[monthKey] ?: (BigDecimal.ZERO to BigDecimal.ZERO)
-                    monthTotals[monthKey] = spend to (income + transaction.value)
+                    val (currentSpend, currentIncome) = monthTotals[monthKey] ?: (BigDecimal.ZERO to BigDecimal.ZERO)
+                    monthTotals[monthKey] = currentSpend to (currentIncome + transaction.value)
 
                     composedList.add(
                         RowEntity(
@@ -196,26 +194,10 @@ fun History(
             )
         }
 
-        // Do NOT add a final MonthTotal here; it’s already inserted at the top of each month
-        // if (transactions.isNotEmpty() && lastSpentMonth !== null) {
-        //     composedList.add(
-        //         RowEntity(
-        //             type = RowEntityType.MonthTotal,
-        //             key = "monthTotal-${lastSpentMonth!!}",
-        //             contentHash = "monthTotal-${lastSpentMonth}",
-        //             transaction = null,
-        //             day = lastSpentMonth!!,
-        //             spendTotal = lastMonthSpendTotal,
-        //             incomeTotal = lastMonthIncomeTotal,
-        //         )
-        //     )
-        // }
-
         // Patch MonthTotal rows with correct totals
         val patchedList = composedList.map { row ->
             if (row.type === RowEntityType.MonthTotal) {
-                val monthKey = row.day.withDayOfMonth(1)
-                val (spendTotal, incomeTotal) = monthTotals[monthKey]
+                val (spendTotal, incomeTotal) = monthTotals[row.key]
                     ?: (BigDecimal.ZERO to BigDecimal.ZERO)
                 row.copy(
                     spendTotal = spendTotal,
@@ -280,12 +262,6 @@ fun History(
                     key = { rowItem -> rowItem.key },
                 ) { index, row ->
                     when (row.type) {
-                        RowEntityType.DayDivider -> HistoryDateDivider(row.day)
-                        RowEntityType.DayTotal -> TotalPerDay(
-                            spentPerDay = row.spendTotal!!,
-                            incomePerDay = row.incomeTotal!!,
-                            currency = currency.value,
-                        )
                         RowEntityType.MonthTotal -> {
                             TotalPerMonth(
                                 spentPerMonth = row.spendTotal!!,
@@ -298,6 +274,12 @@ fun History(
                                 ),
                             )
                         }
+                        RowEntityType.DayDivider -> HistoryDateDivider(row.day)
+                        RowEntityType.DayTotal -> TotalPerDay(
+                            spentPerDay = row.spendTotal!!,
+                            incomePerDay = row.incomeTotal!!,
+                            currency = currency.value,
+                        )
                         RowEntityType.Spent -> if (!readOnly) SwipeActions(
                             startActionsConfig = SwipeActionsConfig(
                                 threshold = 0.4f,

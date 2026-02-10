@@ -1,12 +1,10 @@
 package com.danilkinkin.buckwheat.history
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -260,9 +258,9 @@ private fun PreviewSmallScreen() {
     }
 }
 
-@Preview(name = "Small varinat", uiMode = UI_MODE_NIGHT_YES)
+@Preview(name = "Small variant", uiMode = UI_MODE_NIGHT_YES)
 @Composable
-private fun PreviewSmallVarinat() {
+private fun PreviewSmallVariant() {
     BuckwheatTheme {
         TotalPerMonth(
             spentPerMonth = BigDecimal(60000),
