@@ -34,6 +34,7 @@ import com.danilkinkin.buckwheat.ui.BuckwheatTheme
 import com.danilkinkin.buckwheat.util.*
 import java.math.BigDecimal
 import java.util.*
+import android.util.Log
 
 
 const val WALLET_SHEET = "wallet"
@@ -51,25 +52,15 @@ fun Wallet(
 
     var balanceCache by remember { mutableStateOf(spendsViewModel.balance.value ?: BigDecimal.ZERO) }
     val balance by spendsViewModel.balance.observeAsState(BigDecimal.ZERO)
-    val startPeriodDate by spendsViewModel.startPeriodDate.observeAsState(Date())
-    val finishPeriodDate by spendsViewModel.finishPeriodDate.observeAsState(Date())
     val currency by spendsViewModel.currency.observeAsState()
     val spends by spendsViewModel.transactions.observeAsState()
 
     val navigationBarHeight = LocalWindowInsets.current.calculateBottomPadding()
         .coerceAtLeast(16.dp)
 
-    val isChange = (balanceCache != balance)
 
-    var isEdit by remember(startPeriodDate, finishPeriodDate, forceChange) {
-        mutableStateOf(
-            (finishPeriodDate !== null && isSameDay(
-                startPeriodDate.time,
-                finishPeriodDate!!.time
-            ))
-                    || forceChange
-        )
-    }
+    var isEdit = forceChange
+    Log.d("WALLET", "balance = ${spendsViewModel.balance.value}, balanceCache = $balanceCache")
 
     val offset = with(LocalDensity.current) { 50.dp.toPx().toInt() }
 
@@ -98,7 +89,7 @@ fun Wallet(
                 }
                 Spacer(Modifier.weight(1F))
                 Text(
-                    text = if (isChange || isEdit) {
+                    text = if (isEdit) {
                         stringResource(R.string.wallet_edit_title)
                     } else {
                         stringResource(R.string.wallet_title)
@@ -157,13 +148,6 @@ fun Wallet(
                     }
                 ) { targetIsEdit ->
                     if (targetIsEdit) {
-//                        BudgetConstructor(
-//                            forceChange = forceChange,
-//                            onChange = { newBudget, finishDate ->
-//                                budgetCache = newBudget
-//                                dateToValue.value = finishDate
-//                            }
-//                        )
                         BalanceConstructor(
                             forceChange = forceChange,
                             onChange = { newBalance ->
@@ -179,24 +163,6 @@ fun Wallet(
                         )
                     }
                 }
-//                ButtonRow(
-//                    icon = painterResource(R.drawable.ic_directions),
-//                    text = stringResource(R.string.rest_label),
-//                    onClick = {
-//                        appViewModel.openSheet(PathState(DEFAULT_RECALC_BUDGET_CHOOSER))
-//                    },
-//                    endCaption = when (restedBudgetDistributionMethod) {
-//                        RestedBudgetDistributionMethod.ASK, null -> stringResource(
-//                            R.string.always_ask
-//                        )
-//                        RestedBudgetDistributionMethod.REST -> stringResource(
-//                            R.string.method_split_to_rest_days_title
-//                        )
-//                        RestedBudgetDistributionMethod.ADD_TODAY -> stringResource(
-//                            R.string.method_add_to_current_day_title
-//                        )
-//                    },
-//                )
                 ButtonRow(
                     icon = painterResource(R.drawable.ic_currency),
                     text = stringResource(R.string.in_currency_label),
@@ -218,7 +184,7 @@ fun Wallet(
                     },
                 )
                 AnimatedVisibility(
-                    visible = !isChange && !isEdit,
+                    visible = !isEdit,
                     enter = fadeIn(
                         tween(durationMillis = 350)
                     ) + expandVertically(
@@ -243,32 +209,21 @@ fun Wallet(
                             )
                         }
 
-//                        val exportCSVLaunch = rememberExportCSV(
-//                            activityResultRegistryOwner = activityResultRegistryOwner
-//                        )
+                        val exportCSVLaunch = rememberExportCSV(
+                            activityResultRegistryOwner = activityResultRegistryOwner
+                        )
 
                         ButtonRow(
                             icon = painterResource(R.drawable.ic_file_download),
                             text = stringResource(R.string.export_to_csv),
-//                            onClick = { exportCSVLaunch() }
-                            onClick = {  }
+                            onClick = { exportCSVLaunch() }
+//                            onClick = {  }
                         )
 
-//                        CompositionLocalProvider(
-//                            LocalContentColor provides MaterialTheme.colorScheme.error
-//                        ) {
-//                            ButtonRow(
-//                                icon = painterResource(R.drawable.ic_close),
-//                                text = stringResource(R.string.finish_early),
-//                                onClick = {
-//                                    openConfirmFinishBudgetDialog.value = true
-//                                }
-//                            )
-//                        }
                     }
                 }
                 AnimatedVisibility(
-                    visible = isChange || isEdit,
+                    visible = isEdit,
                     enter = fadeIn(
                         tween(durationMillis = 350)
                     ) + expandVertically(

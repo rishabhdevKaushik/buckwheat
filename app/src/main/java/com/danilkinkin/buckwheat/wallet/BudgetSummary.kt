@@ -17,7 +17,7 @@ fun BudgetSummary(
     onEdit: () -> Unit = {},
 ) {
     val currency by spendsViewModel.currency.observeAsState(ExtendCurrency.none())
-    val wholeBudget = spendsViewModel.budget.value!!
+//    val wholeBudget = spendsViewModel.budget.value!!
 
     Column(Modifier.padding(start = 16.dp, top = 0.dp, end = 16.dp, bottom = 16.dp)) {
         RestAndSpentBudgetCard(

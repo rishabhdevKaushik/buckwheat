@@ -36,10 +36,10 @@ fun rememberExportCSV(
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    val startPeriodDate by remember {
+    val startDate by remember {
         mutableStateOf(spendsViewModel.startPeriodDate.value?.toLocalDate())
     }
-    val finishPeriodDate by remember {
+    val finishDate by remember {
         mutableStateOf(spendsViewModel.finishPeriodDate.value?.let {
             LocalDate.now().coerceAtMost(it.toLocalDate())
         })
@@ -51,14 +51,14 @@ fun rememberExportCSV(
     val yearFormatter = DateTimeFormatter.ofPattern("yyyy")
 
     val from =
-//        if (
-//        yearFormatter.format(startPeriodDate) == yearFormatter.format(finishPeriodDate)
-//    ) {
-//        DateTimeFormatter.ofPattern("dd-MM").format(startPeriodDate)
-//    } else {
-        DateTimeFormatter.ofPattern("dd-MM-yyyy").format(startPeriodDate)
-//    }
-    val to = DateTimeFormatter.ofPattern("dd-MM-yyyy").format(finishPeriodDate)
+        if (
+            yearFormatter.format(startDate) == yearFormatter.format(finishDate)
+        ) {
+            DateTimeFormatter.ofPattern("dd-MM").format(startDate)
+        } else {
+            DateTimeFormatter.ofPattern("dd-MM-yyyy").format(startDate)
+        }
+    val to = DateTimeFormatter.ofPattern("dd-MM-yyyy").format(finishDate)
 
 
     val fileName = stringResource(R.string.export_to_csv_file_name, from, to)

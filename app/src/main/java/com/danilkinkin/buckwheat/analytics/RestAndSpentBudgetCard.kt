@@ -44,33 +44,9 @@ fun RestAndSpentBudgetCard(
 ) {
     val context = LocalContext.current
     val currency by spendsViewModel.currency.observeAsState(ExtendCurrency.none())
-    val showSpentCard by appViewModel.showSpentCardByDefault.observeAsState(false)
 
-    val wholeBudget = spendsViewModel.budget.value!!
-    val restBudget by spendsViewModel.howMuchBudgetRest().observeAsState(BigDecimal.ZERO)
     val balance by spendsViewModel.howMuchBalanceRest().observeAsState(BigDecimal.ZERO)
 
-//    val percent = remember (restBudget) { restBudget.divide(wholeBudget, 4, RoundingMode.HALF_EVEN) }
-
-    val overString = stringResource(R.string.over)
-
-//    val percentFormatted = remember(showSpentCard, percent) {
-//        val formatter = NumberFormat.getNumberInstance(Locale.getDefault())
-//        formatter.maximumFractionDigits = 2
-//        formatter.minimumFractionDigits = 0
-//
-//        val percentCalculated = if (showSpentCard) {
-//            BigDecimal(1).minus(percent).multiply(BigDecimal(100))
-//        } else {
-//            percent.multiply(BigDecimal(100))
-//        }
-//
-//        if (percentCalculated.abs() > BigDecimal(1000)) {
-//            "$overString ${formatter.format(percentCalculated.coerceIn(BigDecimal(-1000), BigDecimal(1000)))}"
-//        } else {
-//            formatter.format(percentCalculated)
-//        }
-//    }
 
     val shift = remember { Animatable(0f) }
     val coroutineScope = rememberCoroutineScope()
@@ -98,7 +74,6 @@ fun RestAndSpentBudgetCard(
                     colorNotGood,
                     colorGood,
                 ),
-//                percent.coerceIn(BigDecimal.ZERO, BigDecimal(1)).toFloat(),
             )
         )
     )
@@ -106,7 +81,6 @@ fun RestAndSpentBudgetCard(
     Box(
         modifier = modifier
             .clip(shape = MaterialTheme.shapes.extraLarge)
-            .clickable { appViewModel.setShowSpentCardByDefault(!showSpentCard) }
     ) {
         Card(
             modifier = modifier,
@@ -123,27 +97,6 @@ fun RestAndSpentBudgetCard(
                     .height(IntrinsicSize.Min)
                     .fillMaxWidth()
             ) {
-                Box(
-                    Modifier
-                        .fillMaxHeight()
-                        .fillMaxWidth()
-                ) {
-//                    Box(
-//                        modifier = Modifier
-//                            .background(
-//                                harmonizedColor.main,
-//                                shape = WavyShape(
-//                                    period = if (bigVariant) 70.dp else 40.dp,
-//                                    amplitude = percent
-//                                        .toFloat()
-//                                        .clamp(0.96f, 1f) * (if (bigVariant) 3.5.dp else 2.dp),
-//                                    shift = shift.value,
-//                                ),
-//                            )
-//                            .fillMaxHeight()
-//                            .fillMaxWidth(percent.toFloat()),
-//                    )
-                }
 
                 Column(
                     Modifier
@@ -176,50 +129,8 @@ fun RestAndSpentBudgetCard(
                     } else {
                         Spacer(modifier = Modifier.height(4.dp))
                     }
-
-                    CompositionLocalProvider(
-                        LocalContentColor provides textColor,
-                    ) {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                        ) {
-                            Spacer(modifier = Modifier.height(6.dp))
-//                            Text(
-//                                text = stringResource(
-//                                    R.string.rest_budget_percent,
-//                                    percentFormatted
-//                                ),
-//                                style = MaterialTheme.typography.bodyMedium,
-//                                fontSize = if (bigVariant) MaterialTheme.typography.labelMedium.fontSize else MaterialTheme.typography.labelSmall.fontSize,
-//                            )
-                        }
-                    }
                 }
             }
-        }
-
-        Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .align(Alignment.TopEnd)
-        ) {
-            Box(
-                Modifier
-                    .size(4.dp)
-                    .background(
-                        color = harmonizedColor.onContainer.copy(alpha = if (showSpentCard) 0.3f else 1f),
-                        shape = CircleShape,
-                    )
-            )
-            Spacer(Modifier.width(4.dp))
-            Box(
-                Modifier
-                    .size(4.dp)
-                    .background(
-                        color = harmonizedColor.onContainer.copy(alpha = if (!showSpentCard) 0.3f else 1f),
-                        shape = CircleShape,
-                    )
-            )
         }
     }
 }
