@@ -151,18 +151,3 @@ fun DayPreview() {
     }
 }
 
-@Preview(name = "RU locale", locale = "ru")
-@Composable
-fun DayPreviewRu() {
-    val context = LocalContext.current
-    val state = remember { mutableStateOf(CalendarState(context)) }
-
-    BuckwheatTheme {
-        Surface {
-            DatePicker(
-                state.value,
-                onDayClicked = { state.value.setSelectedDay(it) },
-            )
-        }
-    }
-}

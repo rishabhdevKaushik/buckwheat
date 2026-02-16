@@ -41,8 +41,10 @@ import com.danilkinkin.buckwheat.data.AppViewModel
 import com.danilkinkin.buckwheat.data.SpendsViewModel
 import com.danilkinkin.buckwheat.data.entities.TransactionType
 import com.danilkinkin.buckwheat.analytics.categoriesChart.CategoriesChartCard
+import com.danilkinkin.buckwheat.data.PathState
 import com.danilkinkin.buckwheat.ui.BuckwheatTheme
 import com.danilkinkin.buckwheat.wallet.DaysLeftCard
+import com.danilkinkin.buckwheat.wallet.EXPORT_CSV_SHEET
 import com.danilkinkin.buckwheat.wallet.rememberExportCSV
 
 const val ANALYTICS_SHEET = "finishPeriod"
@@ -173,14 +175,11 @@ fun Analytics(
                 }
 
                 if (spends.isNotEmpty()) {
-                    val exportCSVLaunch = rememberExportCSV(
-                        activityResultRegistryOwner = activityResultRegistryOwner
-                    )
 
                     ButtonRow(
                         icon = painterResource(R.drawable.ic_file_download),
                         text = stringResource(R.string.export_to_csv),
-                        onClick = { exportCSVLaunch() },
+                        onClick = { appViewModel.openSheet(PathState(EXPORT_CSV_SHEET)) }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))

@@ -1,6 +1,7 @@
 package com.danilkinkin.buckwheat.wallet
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.LocalActivityResultRegistryOwner
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -25,6 +26,8 @@ import java.time.format.FormatStyle
 
 @Composable
 fun rememberExportCSV(
+    startDate: LocalDate,
+    finishDate: LocalDate,
     appViewModel: AppViewModel = hiltViewModel(),
     spendsViewModel: SpendsViewModel = hiltViewModel(),
     activityResultRegistryOwner: ActivityResultRegistryOwner? = null,
@@ -35,15 +38,6 @@ fun rememberExportCSV(
 
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
-
-    val startDate by remember {
-        mutableStateOf(spendsViewModel.startPeriodDate.value?.toLocalDate())
-    }
-    val finishDate by remember {
-        mutableStateOf(spendsViewModel.finishPeriodDate.value?.let {
-            LocalDate.now().coerceAtMost(it.toLocalDate())
-        })
-    }
 
     val snackBarExportToCSVSuccess = stringResource(R.string.export_to_csv_success)
     val snackBarExportToCSVFailed = stringResource(R.string.export_to_csv_failed)
@@ -82,16 +76,18 @@ fun rememberExportCSV(
 
                 val printer = CSVPrinter(
                     stream?.writer(),
-                    CSVFormat.Builder.create().setHeader("amount", "comment", "commit_time")
+                    CSVFormat.Builder.create()
+                        .setHeader("amount", "income/spend", "comment", "commit_time")
                         .build()
                 )
                 val dateFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
 
-                spendsViewModel.spends.value!!.forEach { spent ->
+                spendsViewModel.transactions.value!!.forEach { transaction ->
                     printer.printRecord(
-                        spent.value,
-                        spent.comment,
-                        spent.date.toLocalDateTime().format(dateFormatter),
+                        transaction.value,
+                        transaction.type,
+                        transaction.comment,
+                        transaction.date.toLocalDateTime().format(dateFormatter),
                     )
                 }
 

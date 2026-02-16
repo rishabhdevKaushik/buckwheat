@@ -138,6 +138,18 @@ fun BottomSheets(
         )
     }
 
+    BottomSheetWrapper(
+        name = EXPORT_CSV_SHEET,
+        cancelable = true,
+    ) { state ->
+        ExportCSV(
+            activityResultRegistryOwner = activityResultRegistryOwner,
+            onClose = {
+                coroutineScope.launch { state.hide() }
+            },
+        )
+    }
+
     BottomSheetWrapper(name = VIEWER_HISTORY_SHEET) {
         ViewerHistory(
             onClose = {

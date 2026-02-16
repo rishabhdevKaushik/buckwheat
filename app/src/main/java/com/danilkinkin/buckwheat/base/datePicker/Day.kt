@@ -2,6 +2,7 @@ package com.danilkinkin.buckwheat.base.datePicker
 
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -46,6 +47,7 @@ internal fun DayOfWeekHeading(day: String, modifier: Modifier = Modifier) {
 private fun DayContainer(
     modifier: Modifier = Modifier,
     current: Boolean = false,
+    highlighted: Boolean = false, // New parameter
     disabled: Boolean = false,
     onSelect: () -> Unit = { },
     content: @Composable () -> Unit
@@ -68,14 +70,28 @@ private fun DayContainer(
             ),
         contentAlignment = Alignment.Center
     ) {
-        if (current) {
+        // Render the inner circle if it is "Today" (current) OR "Highlighted" (Active Selection)
+        if (current || highlighted) {
             Box(
                 modifier = modifier
                     .height(CELL_SIZE - 8.dp)
                     .width(CELL_SIZE - 8.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = CircleShape,
+                    // 1. Background (Only for "Current" day)
+                    .then(
+                        if (current) Modifier.background(
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            shape = CircleShape,
+                        ) else Modifier
+                    )
+                    // 2. Border (Only for "Highlighted" day)
+                    .then(
+                        if (highlighted) Modifier.border(
+                            width = 2.dp,
+                            // Use inversePrimary or onPrimary to be visible on top of the
+                            // Primary colored selection background
+                            color = MaterialTheme.colorScheme.inversePrimary,
+                            shape = CircleShape
+                        ) else Modifier
                     )
             ) {
                 content()
@@ -96,10 +112,13 @@ internal fun Day(
     val disabled = calendarState.isDisabledDay(day)
     val selected = calendarState.isDateInSelectedPeriod(day)
     val current = calendarState.isCurrentDay(day)
+    // Check if this specific day is the Active Start or End date
+    val highlighted = calendarState.isHighlighted(day)
 
     DayContainer(
         modifier = modifier,
         current = current,
+        highlighted = highlighted, // Pass to container
         disabled = disabled,
         onSelect = { onDayClicked(day) },
     ) {

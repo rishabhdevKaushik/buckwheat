@@ -60,7 +60,6 @@ fun Wallet(
 
 
     var isEdit = forceChange
-    Log.d("WALLET", "balance = ${spendsViewModel.balance.value}, balanceCache = $balanceCache")
 
     val offset = with(LocalDensity.current) { 50.dp.toPx().toInt() }
 
@@ -97,19 +96,19 @@ fun Wallet(
                     style = MaterialTheme.typography.titleLarge,
                 )
                 Spacer(Modifier.weight(1F))
-                if (!isEdit) {
-                    IconButton(
-                        onClick = { isEdit = true },
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_edit),
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                } else {
+//                if (!isEdit) {
+//                    IconButton(
+//                        onClick = { isEdit = true },
+//                    ) {
+//                        Icon(
+//                            painter = painterResource(R.drawable.ic_edit),
+//                            contentDescription = null,
+//                            modifier = Modifier.size(24.dp)
+//                        )
+//                    }
+//                } else {
                     Spacer(Modifier.size(48.dp))
-                }
+//                }
             }
             Column(
                 modifier = Modifier
@@ -209,15 +208,12 @@ fun Wallet(
                             )
                         }
 
-                        val exportCSVLaunch = rememberExportCSV(
-                            activityResultRegistryOwner = activityResultRegistryOwner
-                        )
 
                         ButtonRow(
                             icon = painterResource(R.drawable.ic_file_download),
                             text = stringResource(R.string.export_to_csv),
-                            onClick = { exportCSVLaunch() }
-//                            onClick = {  }
+//                            onClick = { exportCSVLaunch() }
+                            onClick = { appViewModel.openSheet(PathState(EXPORT_CSV_SHEET)) }
                         )
 
                     }
@@ -286,18 +282,6 @@ fun Wallet(
             }
         }
     }
-
-//    if (openConfirmFinishBudgetDialog.value) {
-//        ConfirmFinishEarlyDialog(
-//            onConfirm = {
-//                spendsViewModel.finishBudget()
-//
-//                onClose()
-//                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-//            },
-//            onClose = { openConfirmFinishBudgetDialog.value = false },
-//        )
-//    }
 }
 
 @Preview

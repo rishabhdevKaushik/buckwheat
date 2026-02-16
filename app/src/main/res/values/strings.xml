@@ -132,7 +132,6 @@
   <string name="not_enough_data_for_tags_chart">Can\'t split your spends by categories</string>
   <string name="not_enough_data_for_tags_chart_use_tags_hint">Use tags to see chart by categories</string>
   <string name="spends_calendar_hint">Chart show how much you spent every day relative to your daily budget</string>
-  <string name="export_to_csv_file_name">Spends (from %1$s to %2$s)</string>
   <string name="crash_report_ready">An error occurred</string>
   <string name="send_crash_report">Send report</string>
   <string name="add_your_comment_to_report">Add your comment here if you wish. You can delete the block with information about the device if you think that this information does not matter</string>
@@ -151,4 +150,13 @@
   <string name="wallet_edit_title">Set balance</string>
   <string name="change_balance">Change Balance</string>
   <string name="spent">Spent</string>
+  <string name="export_to_csv_title">Export to CSV</string>
+  <string name="export">Export</string>
+  <string name="export_duration">Export duration</string>
+  <string name="this_month">This Month</string>
+  <string name="last_30_days">Last 30 days</string>
+  <string name="custom">Custom</string>
+  <string name="export_to_csv_show_duration">Exporting from %1$s to %2$s</string>
+  <string name="export_to_csv_show_duration_same_day">Exporting transactions for %1$s</string>
+  <string name="export_to_csv_file_name">Transactions (from %1$s to %2$s)</string>
 </resources>

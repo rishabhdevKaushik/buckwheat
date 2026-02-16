@@ -41,12 +41,18 @@ enum class CalendarSelectionMode {
     RANGE,
 }
 
+enum class SelectedDate {
+    START,
+    END,
+}
+
 data class CalendarUiState(
     val selectionMode: CalendarSelectionMode = CalendarSelectionMode.RANGE,
     val selectedStartDate: LocalDate? = null,
     val selectedEndDate: LocalDate? = null,
     val disabledBefore: LocalDate? = LocalDate.now(),
     val disabledAfter: LocalDate? = null,
+    val highlightedDate: SelectedDate = SelectedDate.START
 ) {
 
     val hasSelectedDates: Boolean
@@ -190,6 +196,35 @@ data class CalendarUiState(
             copy(selectedStartDate = newFrom)
         } else {
             copy(selectedStartDate = newFrom, selectedEndDate = newTo)
+        }
+    }
+
+    fun setDateRange(newDate: LocalDate): CalendarUiState {
+        return if (highlightedDate == SelectedDate.START) {
+            if (newDate.isAfter(selectedEndDate)){
+                copy()
+            } else {
+                setDates(newDate, selectedEndDate)
+            }
+        } else {
+            if (newDate.isBefore(selectedStartDate)){
+                copy()
+            } else {
+                setDates(selectedStartDate, newDate)
+            }
+        }
+    }
+
+    fun changeHighlightedDate(setTo: SelectedDate): CalendarUiState {
+        return copy(highlightedDate = setTo)
+    }
+
+    fun isHighlighted(date: LocalDate): Boolean {
+        if (selectedStartDate == null) return false
+
+        return when (highlightedDate) {
+            SelectedDate.START -> date == selectedStartDate
+            SelectedDate.END -> date == selectedEndDate
         }
     }
 
