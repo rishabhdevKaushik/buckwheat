@@ -53,6 +53,7 @@ class SpendsRepository @Inject constructor(
 ) {
     fun getAllTransactions(): LiveData<List<Transaction>> = transactionDao.getAll()
     fun getAllSpends(): LiveData<List<Transaction>> = transactionDao.getAll(TransactionType.SPENT)
+    fun getAllIncome(): LiveData<List<Transaction>> = transactionDao.getAll(TransactionType.INCOME)
 
     fun getAllTags(): LiveData<List<String>> = transactionDao.getAll().map { transactions ->
         transactions
@@ -72,11 +73,6 @@ class SpendsRepository @Inject constructor(
 
     fun getBalance() = context.budgetDataStore.data.map {
         (it[balanceStoreKey]?.toBigDecimal() ?: BigDecimal.ZERO).setScale(2)
-    }
-
-    fun getBalanceNullable() = context.budgetDataStore.data.map {
-//        (it[balanceStoreKey]?.toBigDecimal() ?: BigDecimal.ZERO).setScale(2)
-        (it[balanceStoreKey]?.toBigDecimal()?.setScale(2))
     }
 
     fun getSpent() = context.budgetDataStore.data.map {

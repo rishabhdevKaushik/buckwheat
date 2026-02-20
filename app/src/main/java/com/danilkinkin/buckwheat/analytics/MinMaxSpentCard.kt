@@ -44,11 +44,12 @@ import java.util.Date
 fun MinMaxSpentCard(
     modifier: Modifier = Modifier,
     isMin: Boolean,
+    isIncome: Boolean = false,
     spends: List<Transaction>,
     currency: ExtendCurrency,
 ) {
     val context = LocalContext.current
-    
+
     val minSpent = spends.minByOrNull { it.value }
     val maxSpent = spends.maxByOrNull { it.value }
 
@@ -85,7 +86,13 @@ fun MinMaxSpentCard(
         } else {
             "-"
         },
-        label = stringResource(if (isMin) R.string.min_spent else R.string.max_spent),
+        label = stringResource(
+            if (isIncome) {
+                if (isMin) R.string.min_income else R.string.max_income
+            } else {
+                if (isMin) R.string.min_spent else R.string.max_spent
+            }
+        ),
         colors = CardDefaults.cardColors(
             containerColor = harmonizedColor.container,
             contentColor = harmonizedColor.onContainer,
@@ -109,7 +116,9 @@ fun MinMaxSpentCard(
                         modifier = Modifier.padding(top = 4.dp),
                     ) {
                         Icon(
-                            modifier = Modifier.padding(top = 2.dp).size(16.dp),
+                            modifier = Modifier
+                                .padding(top = 2.dp)
+                                .size(16.dp),
                             painter = painterResource(R.drawable.ic_label),
                             contentDescription = null,
                         )
@@ -147,16 +156,46 @@ private fun PreviewMin() {
         MinMaxSpentCard(
             modifier = Modifier.height(IntrinsicSize.Min),
             isMin = true,
+            isIncome = false,
             currency = ExtendCurrency.none(),
             spends = listOf(
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(52), date = LocalDate.now().minusDays(2).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(72), date = LocalDate.now().minusDays(2).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(42), date = LocalDate.now().minusDays(2).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(52), date = LocalDate.now().minusDays(1).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(72), date = LocalDate.now().minusDays(1).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(42), date = LocalDate.now().minusDays(1).toDate()),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(52),
+                    date = LocalDate.now().minusDays(2).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(72),
+                    date = LocalDate.now().minusDays(2).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(42),
+                    date = LocalDate.now().minusDays(2).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(52),
+                    date = LocalDate.now().minusDays(1).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(72),
+                    date = LocalDate.now().minusDays(1).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(42),
+                    date = LocalDate.now().minusDays(1).toDate()
+                ),
                 Transaction(type = TransactionType.SPENT, value = BigDecimal(56), date = Date()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(15), date = Date(), comment = "Comment of spent"),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(15),
+                    date = Date(),
+                    comment = "Comment of spent"
+                ),
                 Transaction(type = TransactionType.SPENT, value = BigDecimal(42), date = Date()),
             ),
         )
@@ -170,14 +209,39 @@ private fun PreviewMax() {
         MinMaxSpentCard(
             modifier = Modifier.height(IntrinsicSize.Min),
             isMin = false,
+            isIncome = false,
             currency = ExtendCurrency.none(),
             spends = listOf(
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(52), date = LocalDate.now().minusDays(2).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(72), date = LocalDate.now().minusDays(2).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(42), date = LocalDate.now().minusDays(2).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(52), date = LocalDate.now().minusDays(1).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(72), date = LocalDate.now().minusDays(1).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(42), date = LocalDate.now().minusDays(1).toDate()),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(52),
+                    date = LocalDate.now().minusDays(2).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(72),
+                    date = LocalDate.now().minusDays(2).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(42),
+                    date = LocalDate.now().minusDays(2).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(52),
+                    date = LocalDate.now().minusDays(1).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(72),
+                    date = LocalDate.now().minusDays(1).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(42),
+                    date = LocalDate.now().minusDays(1).toDate()
+                ),
                 Transaction(type = TransactionType.SPENT, value = BigDecimal(56), date = Date()),
                 Transaction(type = TransactionType.SPENT, value = BigDecimal(15), date = Date()),
                 Transaction(type = TransactionType.SPENT, value = BigDecimal(42), date = Date()),
@@ -193,16 +257,46 @@ private fun PreviewMinNightMode() {
         MinMaxSpentCard(
             modifier = Modifier.height(IntrinsicSize.Min),
             isMin = true,
+            isIncome = false,
             currency = ExtendCurrency.none(),
             spends = listOf(
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(52), date = LocalDate.now().minusDays(2).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(72), date = LocalDate.now().minusDays(2).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(42), date = LocalDate.now().minusDays(2).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(52), date = LocalDate.now().minusDays(1).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(72), date = LocalDate.now().minusDays(1).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(42), date = LocalDate.now().minusDays(1).toDate()),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(52),
+                    date = LocalDate.now().minusDays(2).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(72),
+                    date = LocalDate.now().minusDays(2).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(42),
+                    date = LocalDate.now().minusDays(2).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(52),
+                    date = LocalDate.now().minusDays(1).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(72),
+                    date = LocalDate.now().minusDays(1).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(42),
+                    date = LocalDate.now().minusDays(1).toDate()
+                ),
                 Transaction(type = TransactionType.SPENT, value = BigDecimal(56), date = Date()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(15), date = Date(), comment = "Relly looooooong comment of spent. Nisi ea mollit aute dolore sunt elit veniam"),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(15),
+                    date = Date(),
+                    comment = "Relly looooooong comment of spent. Nisi ea mollit aute dolore sunt elit veniam"
+                ),
                 Transaction(type = TransactionType.SPENT, value = BigDecimal(42), date = Date()),
             ),
         )
@@ -216,14 +310,39 @@ private fun PreviewMaxNightMode() {
         MinMaxSpentCard(
             modifier = Modifier.height(IntrinsicSize.Min),
             isMin = false,
+            isIncome = false,
             currency = ExtendCurrency.none(),
             spends = listOf(
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(52), date = LocalDate.now().minusDays(2).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(72), date = LocalDate.now().minusDays(2).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(42), date = LocalDate.now().minusDays(2).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(52), date = LocalDate.now().minusDays(1).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(72), date = LocalDate.now().minusDays(1).toDate()),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(42), date = LocalDate.now().minusDays(1).toDate()),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(52),
+                    date = LocalDate.now().minusDays(2).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(72),
+                    date = LocalDate.now().minusDays(2).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(42),
+                    date = LocalDate.now().minusDays(2).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(52),
+                    date = LocalDate.now().minusDays(1).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(72),
+                    date = LocalDate.now().minusDays(1).toDate()
+                ),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(42),
+                    date = LocalDate.now().minusDays(1).toDate()
+                ),
                 Transaction(type = TransactionType.SPENT, value = BigDecimal(56), date = Date()),
                 Transaction(type = TransactionType.SPENT, value = BigDecimal(15), date = Date()),
                 Transaction(type = TransactionType.SPENT, value = BigDecimal(42), date = Date()),
@@ -239,9 +358,14 @@ private fun PreviewWithSameSpends() {
         MinMaxSpentCard(
             modifier = Modifier.height(IntrinsicSize.Min),
             isMin = false,
+            isIncome = false,
             currency = ExtendCurrency.none(),
             spends = listOf(
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(42), date = LocalDate.now().minusDays(1).toDate()),
+                Transaction(
+                    type = TransactionType.SPENT,
+                    value = BigDecimal(42),
+                    date = LocalDate.now().minusDays(1).toDate()
+                ),
                 Transaction(type = TransactionType.SPENT, value = BigDecimal(42), date = Date()),
             ),
         )
@@ -255,6 +379,7 @@ private fun PreviewWithOneSpent() {
         MinMaxSpentCard(
             modifier = Modifier.height(IntrinsicSize.Min),
             isMin = false,
+            isIncome = false,
             currency = ExtendCurrency.none(),
             spends = listOf(
                 Transaction(
@@ -275,6 +400,7 @@ private fun PreviewWithZeroSpends() {
         MinMaxSpentCard(
             modifier = Modifier.height(IntrinsicSize.Min),
             isMin = false,
+            isIncome = false,
             currency = ExtendCurrency.none(),
             spends = listOf(),
         )

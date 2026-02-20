@@ -3,28 +3,21 @@ package com.danilkinkin.buckwheat.analytics
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.layout.*
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
-import androidx.compose.ui.zIndex
 import com.danilkinkin.buckwheat.R
 import com.danilkinkin.buckwheat.data.ExtendCurrency
 import com.danilkinkin.buckwheat.ui.BuckwheatTheme
@@ -36,11 +29,9 @@ import java.util.*
 @Composable
 fun WholeBudgetCard(
     modifier: Modifier = Modifier,
-    budget: BigDecimal,
+    balance: BigDecimal,
     currency: ExtendCurrency,
-    startDate: Date,
-    finishDate: Date?,
-    actualFinishDate: Date? = null,
+    currentMonth: Date,
     colors: CardColors = CardDefaults.cardColors(),
     bigVariant: Boolean = true,
     contentPadding: PaddingValues = PaddingValues(vertical = 16.dp, horizontal = 24.dp),
@@ -53,7 +44,7 @@ fun WholeBudgetCard(
         label = stringResource(R.string.whole_budget),
         value = numberFormat(
             context,
-            budget,
+            balance,
             currency = currency,
         ),
         valueFontStyle = MaterialTheme.typography.displayMedium,
@@ -61,14 +52,10 @@ fun WholeBudgetCard(
         colors = colors,
         content = {
             Spacer(modifier = Modifier.height(16.dp))
-//            Layout(
-//                modifier = Modifier.height(IntrinsicSize.Min),
-//                measurePolicy = growByMiddleChildRowMeasurePolicy(LocalDensity.current),
-//                content = {
                     Column {
                         Text(
                             text = prettyDate(
-                                startDate,
+                                currentMonth,
                                 pattern = "MMM, yy",
                                 simplifyIfToday = false,
                             ),
@@ -78,134 +65,9 @@ fun WholeBudgetCard(
                             fontSize = if (bigVariant) MaterialTheme.typography.bodySmall.fontSize else MaterialTheme.typography.labelSmall.fontSize,
                         )
                     }
-
-//                    Box(
-//                        modifier = Modifier
-//                    ) {
-//                        Arrow(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .padding(horizontal = if (bigVariant) 16.dp else 8.dp)
-//                                .fillMaxHeight()
-//                        )
-//                        if (actualFinishDate !== null && bigVariant) {
-//                            CountDaysChip(
-//                                Modifier
-//                                    .align(Alignment.Center)
-//                                    .offset(6.dp, (-12).dp)
-//                                    .rotate(6f)
-//                                    .zIndex(1f),
-//                                fromDate = startDate,
-//                                toDate = actualFinishDate
-//                            )
-//                            Cross(
-//                                modifier = Modifier.align(Alignment.Center)
-//                            ) {
-//                                CountDaysChip(
-//                                    Modifier,
-//                                    fromDate = startDate,
-//                                    toDate = finishDate!!
-//                                )
-//                            }
-//                        } else if (finishDate !== null && bigVariant) {
-//                            CountDaysChip(
-//                                Modifier.align(Alignment.Center),
-//                                fromDate = startDate,
-//                                toDate = finishDate
-//                            )
-//                        }
-//                    }
-
-//                    Column(horizontalAlignment = Alignment.End) {
-//                        Box {
-//                            if (actualFinishDate !== null) {
-//                                Text(
-//                                    modifier = Modifier
-//                                        .offset((-4).dp, (-20).dp)
-//                                        .rotate(6f),
-//                                    text = prettyDate(
-//                                        actualFinishDate,
-//                                        pattern = "dd MMM",
-//                                        simplifyIfToday = false,
-//                                    ),
-//                                    softWrap = false,
-//                                    overflow = TextOverflow.Ellipsis,
-//                                    style = MaterialTheme.typography.bodyMedium,
-//                                    fontSize = if (bigVariant) MaterialTheme.typography.bodySmall.fontSize else MaterialTheme.typography.labelSmall.fontSize,
-//                                )
-//
-//                                Cross {
-//                                    Box(Modifier.wrapContentSize()) {
-//                                        Text(
-//                                            text = if (finishDate !== null) {
-//                                                prettyDate(
-//                                                    finishDate,
-//                                                    pattern = "dd MMM",
-//                                                    simplifyIfToday = false,
-//                                                )
-//                                            } else {
-//                                                "-"
-//                                            },
-//                                            softWrap = false,
-//                                            overflow = TextOverflow.Ellipsis,
-//                                            style = MaterialTheme.typography.bodyMedium,
-//                                            fontSize = if (bigVariant) MaterialTheme.typography.bodySmall.fontSize else MaterialTheme.typography.labelSmall.fontSize,
-//                                        )
-//                                    }
-//                                }
-//                            } else {
-//                                Text(
-//                                    text = if (finishDate !== null) {
-//                                        prettyDate(
-//                                            finishDate,
-//                                            pattern = "dd MMM",
-//                                            simplifyIfToday = false,
-//                                        )
-//                                    } else {
-//                                        "-"
-//                                    },
-//                                    softWrap = false,
-//                                    overflow = TextOverflow.Ellipsis,
-//                                    style = MaterialTheme.typography.bodyMedium,
-//                                    fontSize = if (bigVariant) MaterialTheme.typography.bodySmall.fontSize else MaterialTheme.typography.labelSmall.fontSize,
-//                                )
-//                            }
-//                        }
-//                    }
-//                },
-//            )
         }
     )
 }
-
-//@Composable
-//fun CountDaysChip(modifier: Modifier = Modifier, fromDate: Date, toDate: Date) {
-//    Surface(
-//        modifier = modifier
-//            .requiredHeight(24.dp),
-//        shape = CircleShape,
-//        color = LocalContentColor.current,
-//        contentColor = MaterialTheme.colorScheme.surface,
-//    ) {
-//        val days = countDays(toDate, fromDate)
-//
-//        Box(
-//            contentAlignment = Alignment.Center,
-//        ) {
-//            Text(
-//                modifier = Modifier.padding(12.dp, 0.dp),
-//                text = String.format(
-//                    pluralStringResource(
-//                        R.plurals.days_count,
-//                        count = days
-//                    ),
-//                    days,
-//                ),
-//                style = MaterialTheme.typography.bodyMedium,
-//            )
-//        }
-//    }
-//}
 
 @Composable
 fun Cross(
@@ -345,11 +207,9 @@ private fun PreviewEarlyFinish() {
     BuckwheatTheme {
         WholeBudgetCard(
             modifier = Modifier.height(IntrinsicSize.Min),
-            budget = BigDecimal(60000),
+            balance = BigDecimal(60000),
             currency = ExtendCurrency.none(),
-            startDate = LocalDate.now().minusDays(28).toDate(),
-            finishDate = Date(),
-            actualFinishDate = LocalDate.now().minusDays(2).toDate(),
+            currentMonth = LocalDate.now().minusDays(28).toDate(),
         )
     }
 }
@@ -361,10 +221,9 @@ private fun Preview() {
     BuckwheatTheme {
         WholeBudgetCard(
             modifier = Modifier.height(IntrinsicSize.Min),
-            budget = BigDecimal(60000),
+            balance = BigDecimal(60000),
             currency = ExtendCurrency.none(),
-            startDate = LocalDate.now().minusDays(28).toDate(),
-            finishDate = Date(),
+            currentMonth = LocalDate.now().minusDays(28).toDate(),
         )
     }
 }
@@ -375,10 +234,9 @@ private fun PreviewSmallScreen() {
     BuckwheatTheme {
         WholeBudgetCard(
             modifier = Modifier.height(IntrinsicSize.Min),
-            budget = BigDecimal(60000),
+            balance = BigDecimal(60000),
             currency = ExtendCurrency.none(),
-            startDate = LocalDate.now().minusDays(28).toDate(),
-            finishDate = Date(),
+            currentMonth = LocalDate.now().minusDays(28).toDate(),
         )
     }
 }
@@ -389,10 +247,9 @@ private fun PreviewSmallVarinat() {
     BuckwheatTheme {
         WholeBudgetCard(
             modifier = Modifier.height(IntrinsicSize.Min),
-            budget = BigDecimal(60000),
+            balance = BigDecimal(60000),
             currency = ExtendCurrency.none(),
-            startDate = LocalDate.now().minusDays(28).toDate(),
-            finishDate = Date(),
+            currentMonth = LocalDate.now().minusDays(28).toDate(),
             bigVariant = false,
         )
     }

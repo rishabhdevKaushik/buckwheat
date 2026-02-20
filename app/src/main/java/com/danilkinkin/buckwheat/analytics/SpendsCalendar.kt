@@ -82,10 +82,10 @@ data class SpendingDay(
 @Composable
 fun SpendsCalendar(
     modifier: Modifier = Modifier,
-    budget: BigDecimal,
+    balance: BigDecimal,
     transactions: List<Transaction>,
-    startDate: Date,
-    finishDate: Date,
+    startDate: Date = LocalDate.now().withDayOfMonth(1).toDate(),
+    finishDate: Date = LocalDate.now().toDate(),
     actualFinishDate: Date? = null,
     currency: ExtendCurrency,
 ) {
@@ -102,9 +102,9 @@ fun SpendsCalendar(
                 return@forEach
             }
 
-            if (currDay == null || !isSameDay(currDay!!.date.time, it.date.time)) {
+            if (currDay == null || !isSameDay(currDay.date.time, it.date.time)) {
                 if (currDay !== null) {
-                    days[currDay!!.date.toLocalDate()] = currDay!!
+                    days[currDay.date.toLocalDate()] = currDay
                 }
 
                 if (it.type == TransactionType.SET_DAILY_BUDGET) {
@@ -432,109 +432,109 @@ fun verticalGridMeasurePolicy(columns: Int) =
     }
 
 
-@Preview(name = "Default")
-@Preview(name = "Default (Dark mode)", uiMode = UI_MODE_NIGHT_YES)
-@Composable
-private fun PreviewDefault() {
-    BuckwheatTheme {
-        SpendsCalendar(
-            budget = BigDecimal(200),
-            transactions = listOf(
-                Transaction(
-                    type = TransactionType.INCOME,
-                    value = BigDecimal(800),
-                    date = LocalDate.now().minusDays(5).toDate()
-                ),
-                Transaction(
-                    type = TransactionType.SET_DAILY_BUDGET,
-                    value = BigDecimal(8),
-                    date = LocalDate.now().minusDays(4).toDate()
-                ),
-                Transaction(
-                    type = TransactionType.SET_DAILY_BUDGET,
-                    value = BigDecimal(10),
-                    date = LocalDate.now().minusDays(2).toDate()
-                ),
-                Transaction(
-                    type = TransactionType.SPENT,
-                    value = BigDecimal(3),
-                    date = LocalDate.now().minusDays(2).toDate()
-                ),
-                Transaction(
-                    type = TransactionType.SET_DAILY_BUDGET,
-                    value = BigDecimal(10),
-                    date = LocalDate.now().minusDays(1).toDate()
-                ),
-                Transaction(
-                    type = TransactionType.SPENT,
-                    value = BigDecimal(5),
-                    date = LocalDate.now().minusDays(1).toDate()
-                ),
-                Transaction(
-                    type = TransactionType.SET_DAILY_BUDGET,
-                    value = BigDecimal(15),
-                    date = LocalDate.now().toDate()
-                ),
-                Transaction(type = TransactionType.SPENT, value = BigDecimal(8), date = Date()),
-                Transaction(
-                    type = TransactionType.SET_DAILY_BUDGET,
-                    value = BigDecimal(12),
-                    date = LocalDate.now().plusDays(1).toDate()
-                ),
-                Transaction(
-                    type = TransactionType.SPENT,
-                    value = BigDecimal(6),
-                    date = LocalDate.now().plusDays(1).toDate()
-                ),
-                Transaction(
-                    type = TransactionType.SET_DAILY_BUDGET,
-                    value = BigDecimal(12),
-                    date = LocalDate.now().plusDays(1).toDate()
-                ),
-                Transaction(
-                    type = TransactionType.SPENT,
-                    value = BigDecimal(8),
-                    date = LocalDate.now().plusDays(2).toDate()
-                ),
-                Transaction(
-                    type = TransactionType.SPENT,
-                    value = BigDecimal(10),
-                    date = LocalDate.now().plusDays(2).toDate()
-                ),
-                Transaction(
-                    type = TransactionType.SPENT,
-                    value = BigDecimal(12),
-                    date = LocalDate.now().plusDays(2).toDate()
-                ),
-                Transaction(
-                    type = TransactionType.SET_DAILY_BUDGET,
-                    value = BigDecimal(9),
-                    date = LocalDate.now().plusDays(5).toDate()
-                ),
-                Transaction(
-                    type = TransactionType.SPENT,
-                    value = BigDecimal(8),
-                    date = LocalDate.now().plusDays(5).toDate()
-                ),
-                Transaction(
-                    type = TransactionType.SET_DAILY_BUDGET,
-                    value = BigDecimal(14),
-                    date = LocalDate.now().plusDays(7).toDate()
-                ),
-                Transaction(
-                    type = TransactionType.SPENT,
-                    value = BigDecimal(82),
-                    date = LocalDate.now().plusDays(11).toDate()
-                ),
-                Transaction(
-                    type = TransactionType.SET_DAILY_BUDGET,
-                    value = BigDecimal(14),
-                    date = LocalDate.now().plusDays(7).toDate()
-                ),
-            ),
-            currency = ExtendCurrency.none(),
-            startDate = LocalDate.now().minusDays(7).toDate(),
-            finishDate = LocalDate.now().plusDays(27).toDate(),
-        )
-    }
-}
+//@Preview(name = "Default")
+//@Preview(name = "Default (Dark mode)", uiMode = UI_MODE_NIGHT_YES)
+//@Composable
+//private fun PreviewDefault() {
+//    BuckwheatTheme {
+//        SpendsCalendar(
+//            balance = BigDecimal(200),
+//            transactions = listOf(
+//                Transaction(
+//                    type = TransactionType.INCOME,
+//                    value = BigDecimal(800),
+//                    date = LocalDate.now().minusDays(5).toDate()
+//                ),
+//                Transaction(
+//                    type = TransactionType.SET_DAILY_BUDGET,
+//                    value = BigDecimal(8),
+//                    date = LocalDate.now().minusDays(4).toDate()
+//                ),
+//                Transaction(
+//                    type = TransactionType.SET_DAILY_BUDGET,
+//                    value = BigDecimal(10),
+//                    date = LocalDate.now().minusDays(2).toDate()
+//                ),
+//                Transaction(
+//                    type = TransactionType.SPENT,
+//                    value = BigDecimal(3),
+//                    date = LocalDate.now().minusDays(2).toDate()
+//                ),
+//                Transaction(
+//                    type = TransactionType.SET_DAILY_BUDGET,
+//                    value = BigDecimal(10),
+//                    date = LocalDate.now().minusDays(1).toDate()
+//                ),
+//                Transaction(
+//                    type = TransactionType.SPENT,
+//                    value = BigDecimal(5),
+//                    date = LocalDate.now().minusDays(1).toDate()
+//                ),
+//                Transaction(
+//                    type = TransactionType.SET_DAILY_BUDGET,
+//                    value = BigDecimal(15),
+//                    date = LocalDate.now().toDate()
+//                ),
+//                Transaction(type = TransactionType.SPENT, value = BigDecimal(8), date = Date()),
+//                Transaction(
+//                    type = TransactionType.SET_DAILY_BUDGET,
+//                    value = BigDecimal(12),
+//                    date = LocalDate.now().plusDays(1).toDate()
+//                ),
+//                Transaction(
+//                    type = TransactionType.SPENT,
+//                    value = BigDecimal(6),
+//                    date = LocalDate.now().plusDays(1).toDate()
+//                ),
+//                Transaction(
+//                    type = TransactionType.SET_DAILY_BUDGET,
+//                    value = BigDecimal(12),
+//                    date = LocalDate.now().plusDays(1).toDate()
+//                ),
+//                Transaction(
+//                    type = TransactionType.SPENT,
+//                    value = BigDecimal(8),
+//                    date = LocalDate.now().plusDays(2).toDate()
+//                ),
+//                Transaction(
+//                    type = TransactionType.SPENT,
+//                    value = BigDecimal(10),
+//                    date = LocalDate.now().plusDays(2).toDate()
+//                ),
+//                Transaction(
+//                    type = TransactionType.SPENT,
+//                    value = BigDecimal(12),
+//                    date = LocalDate.now().plusDays(2).toDate()
+//                ),
+//                Transaction(
+//                    type = TransactionType.SET_DAILY_BUDGET,
+//                    value = BigDecimal(9),
+//                    date = LocalDate.now().plusDays(5).toDate()
+//                ),
+//                Transaction(
+//                    type = TransactionType.SPENT,
+//                    value = BigDecimal(8),
+//                    date = LocalDate.now().plusDays(5).toDate()
+//                ),
+//                Transaction(
+//                    type = TransactionType.SET_DAILY_BUDGET,
+//                    value = BigDecimal(14),
+//                    date = LocalDate.now().plusDays(7).toDate()
+//                ),
+//                Transaction(
+//                    type = TransactionType.SPENT,
+//                    value = BigDecimal(82),
+//                    date = LocalDate.now().plusDays(11).toDate()
+//                ),
+//                Transaction(
+//                    type = TransactionType.SET_DAILY_BUDGET,
+//                    value = BigDecimal(14),
+//                    date = LocalDate.now().plusDays(7).toDate()
+//                ),
+//            ),
+//            currency = ExtendCurrency.none(),
+//            startDate = LocalDate.now().minusDays(7).toDate(),
+//            finishDate = LocalDate.now().plusDays(27).toDate(),
+//        )
+//    }
+//}

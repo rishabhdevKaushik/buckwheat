@@ -3,10 +3,7 @@ package com.danilkinkin.buckwheat.analytics
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FloatTweenSpec
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -20,7 +17,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.danilkinkin.buckwheat.R
-import com.danilkinkin.buckwheat.base.WavyShape
 import com.danilkinkin.buckwheat.data.AppViewModel
 import com.danilkinkin.buckwheat.data.ExtendCurrency
 import com.danilkinkin.buckwheat.data.SpendsViewModel
@@ -31,12 +27,9 @@ import com.danilkinkin.buckwheat.ui.colorNotGood
 import com.danilkinkin.buckwheat.util.*
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
-import java.math.RoundingMode
-import java.text.NumberFormat
-import java.util.*
 
 @Composable
-fun RestAndSpentBudgetCard(
+fun BalanceCard(
     modifier: Modifier = Modifier,
     bigVariant: Boolean = false,
     appViewModel: AppViewModel = hiltViewModel(),
@@ -139,7 +132,7 @@ fun RestAndSpentBudgetCard(
 @Composable
 private fun Preview() {
     BuckwheatTheme {
-        RestAndSpentBudgetCard()
+        BalanceCard()
     }
 }
 
@@ -147,7 +140,7 @@ private fun Preview() {
 @Composable
 private fun PreviewHalf() {
     BuckwheatTheme {
-        RestAndSpentBudgetCard()
+        BalanceCard()
     }
 }
 
@@ -155,6 +148,6 @@ private fun PreviewHalf() {
 @Composable
 private fun PreviewFull() {
     BuckwheatTheme {
-        RestAndSpentBudgetCard()
+        BalanceCard()
     }
 }

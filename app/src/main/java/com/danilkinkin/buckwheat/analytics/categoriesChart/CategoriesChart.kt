@@ -40,6 +40,7 @@ import com.danilkinkin.buckwheat.util.harmonize
 import com.danilkinkin.buckwheat.util.harmonizeWithColor
 import com.danilkinkin.buckwheat.util.toPalette
 import java.math.BigDecimal
+import java.time.LocalDate
 import java.util.Date
 
 data class TagUsage(
@@ -63,8 +64,11 @@ var baseColors = listOf(
 @Composable
 fun CategoriesChartCard(
     modifier: Modifier = Modifier,
-    spends: List<Transaction>,
+    transactions: List<Transaction>,
+    isIncome: Boolean = false,
     currency: ExtendCurrency,
+    startDate: LocalDate? = null,
+    finishDate: LocalDate? = null,
 ) {
     val isNightMode = isNightMode()
     val labelWithoutTag = stringResource(R.string.without_tag)
@@ -99,9 +103,13 @@ fun CategoriesChartCard(
 
     var offsetColor = 0
 
-    val tags by remember {
+    val tags by remember(transactions, startDate, finishDate) {
+        if (transactions.isEmpty()) {
+            // Return empty list instead of crashing
+            mutableStateOf(emptyList<TagUsage>())
+        } else {
         // Convert to TagUsage, group by tag and sum amounts
-        var result = spends
+        var result = transactions
             .map { it.copy(comment = it.comment.ifEmpty { labelWithoutTag }) }
             .groupBy { it.comment.trim() }
             .map { tag ->
@@ -145,7 +153,7 @@ fun CategoriesChartCard(
         }
 
         mutableStateOf(result)
-    }
+    } }
 
     Card(
         modifier = modifier,
@@ -158,7 +166,7 @@ fun CategoriesChartCard(
             ),
         )
     ) {
-        if (tags.size == 1 && tags.first().name == labelWithoutTag) {
+        if (tags.isEmpty() || (tags.size == 1 && tags.first().name == labelWithoutTag)) {
             Box {
                 Column(
                     modifier = Modifier
@@ -176,7 +184,10 @@ fun CategoriesChartCard(
                         )
                         Column {
                             Text(
-                                text = "We can't split your spends by categories",
+                                text = stringResource(
+                                    R.string.can_not_split_tags,
+                                    if (isIncome) "incomes" else "spends"
+                                ),
                                 style = MaterialTheme.typography.bodyLarge.copy(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 ),
@@ -186,7 +197,7 @@ fun CategoriesChartCard(
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
                                 Text(
-                                    text = "Use tags to see chart by categories ",
+                                    text = stringResource(R.string.use_tags),
                                     style = MaterialTheme.typography.bodyMedium.copy(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.8f),
                                     ),
@@ -194,17 +205,28 @@ fun CategoriesChartCard(
                             }
                         }
                     }
-
-
                 }
             }
         } else {
-            DonutChart(
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
-                    .size(64.dp),
-                items = tags,
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                DonutChart(
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
+                        .size(64.dp),
+                    items = tags,
+                )
+                    Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = stringResource(if (isIncome) R.string.income else R.string.spend),
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    ),
+                )
+            }
             FlowRow(Modifier.padding(4.dp, 4.dp)) {
                 tags.forEach { tag ->
                     TagAmount(
@@ -246,7 +268,7 @@ private fun PreviewWithOther() {
         CategoriesChartCard(
             modifier = Modifier.height(IntrinsicSize.Min),
             currency = ExtendCurrency.getInstance("EUR"),
-            spends = tags.mapIndexed { index, it ->
+            transactions = tags.mapIndexed { index, it ->
                 Transaction(
                     type = TransactionType.SPENT,
                     value = BigDecimal(50 + index),
@@ -291,7 +313,7 @@ private fun PreviewManyTags() {
         CategoriesChartCard(
             modifier = Modifier.height(IntrinsicSize.Min),
             currency = ExtendCurrency.getInstance("EUR"),
-            spends = tags.mapIndexed { index, it ->
+            transactions = tags.mapIndexed { index, it ->
                 Transaction(
                     type = TransactionType.SPENT,
                     value = BigDecimal(50 + index),
@@ -311,7 +333,7 @@ private fun PreviewWithoutTags() {
         CategoriesChartCard(
             modifier = Modifier.height(IntrinsicSize.Min),
             currency = ExtendCurrency.getInstance("EUR"),
-            spends = List(10) { "" }.mapIndexed { index, it ->
+            transactions = List(10) { "" }.mapIndexed { index, it ->
                 Transaction(
                     type = TransactionType.SPENT,
                     value = BigDecimal(50 + index),

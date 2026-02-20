@@ -61,7 +61,7 @@ fun History(
     val coroutineScope = rememberCoroutineScope()
 
     var historyList by remember { mutableStateOf<List<RowEntity>>(emptyList()) }
-    val transactions by spendsViewModel.transactions.observeAsState(initial = emptyList())
+//    val transactions by spendsViewModel.transactions.observeAsState(initial = emptyList())
     val currency = spendsViewModel.currency.observeAsState(initial = ExtendCurrency.none())
     val scrollToBottom = remember { mutableStateOf(true) }
     val tutorial by appViewModel.getTutorialStage(TUTORS.SWIPE_EDIT_SPENT).observeAsState(TUTORIAL_STAGE.NONE)
@@ -85,7 +85,7 @@ fun History(
 
                 if(lastSpentMonth === null || !isSameMonth(
                         transaction.date.time,
-                        lastSpentMonth!!.toDate().time
+                        lastSpentMonth.toDate().time
                     )) {
                     lastSpentMonth = currentMonth
                     val monthTotalKey = "monthTotal-${lastSpentMonth}"
@@ -106,7 +106,7 @@ fun History(
 
                 if (lastSpentDate === null || !isSameDay(
                         transaction.date.time,
-                        lastSpentDate!!.toDate().time
+                        lastSpentDate.toDate().time
                     )
                 ) {
                     if (lastSpentDate !== null) {
@@ -116,7 +116,7 @@ fun History(
                                 key = "dayTotal-${lastSpentDate}",
                                 contentHash = "dayTotal-${lastSpentDate}",
                                 transaction = null,
-                                day = lastSpentDate!!,
+                                day = lastSpentDate,
                                 spendTotal = lastDaySpendTotal,
                                 incomeTotal = lastDayIncomeTotal,
                             )
@@ -133,7 +133,7 @@ fun History(
                             key = "header-${lastSpentDate}",
                             contentHash = "header-${lastSpentDate}",
                             transaction = null,
-                            day = lastSpentDate!!,
+                            day = lastSpentDate,
                             spendTotal = null,
                             incomeTotal = null
                         )
@@ -154,7 +154,7 @@ fun History(
                             key = "spent-${transaction.uid}",
                             contentHash = "spent-${transaction.uid}",
                             transaction = transaction,
-                            day = lastSpentDate!!,
+                            day = lastSpentDate,
                             spendTotal = null,
                             incomeTotal = null
                         )
@@ -172,7 +172,7 @@ fun History(
                             key = "income-${transaction.uid}",
                             contentHash = "income-${transaction.uid}",
                             transaction = transaction,
-                            day = lastSpentDate!!,
+                            day = lastSpentDate,
                             spendTotal = null,
                             incomeTotal = null
                         )
@@ -184,10 +184,10 @@ fun History(
             composedList.add(
                 RowEntity(
                     type = RowEntityType.DayTotal,
-                    key = "dayTotal-${lastSpentDate!!}",
+                    key = "dayTotal-${lastSpentDate}",
                     contentHash = "dayTotal-${lastSpentDate}",
                     transaction = null,
-                    day = lastSpentDate!!,
+                    day = lastSpentDate,
                     spendTotal = lastDaySpendTotal,
                     incomeTotal = lastDayIncomeTotal,
                 )
@@ -267,7 +267,7 @@ fun History(
                                 spentPerMonth = row.spendTotal!!,
                                 incomePerMonth = row.incomeTotal!!,
                                 currency = currency.value,
-                                currentMonth = row.day.toDate()!!,
+                                currentMonth = row.day.toDate(),
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                                     contentColor = MaterialTheme.colorScheme.onTertiaryContainer,

@@ -26,7 +26,7 @@ import com.danilkinkin.buckwheat.ui.BuckwheatTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SpendsCountCard(
+fun TransactionsCountCard(
     modifier: Modifier = Modifier,
     count: Int,
     appViewModel: AppViewModel = hiltViewModel(),
@@ -65,7 +65,7 @@ fun SpendsCountCard(
                     textAlign = TextAlign.Center,
                 )
                 Text(
-                    text = stringResource(R.string.count_spends),
+                    text = stringResource(R.string.count_transactions),
                     style = MaterialTheme.typography.labelMedium,
                     color = textColor.copy(alpha = 0.6f),
                     softWrap = false,
@@ -86,7 +86,7 @@ fun SpendsCountCard(
 @Composable
 private fun Preview() {
     BuckwheatTheme {
-        SpendsCountCard(
+        TransactionsCountCard(
             count = 348,
         )
     }
@@ -96,7 +96,7 @@ private fun Preview() {
 @Composable
 private fun PreviewNightMode() {
     BuckwheatTheme {
-        SpendsCountCard(
+        TransactionsCountCard(
             count = 348,
         )
     }
